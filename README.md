@@ -1,10 +1,21 @@
 # One Acre, Zero Dependency
 
-Off-grid, AI-driven farming on two seasonal plots near Utrecht (NL), one cultivated through summer,
-the other through winter. A solar-powered field node measures soil and weather; a laptop-side Python
-stack merges that with 125 years of public Dutch weather records, forecasts its own solar budget,
-computes the Thun biodynamic day-type from first principles, and asks a **local** LLM to turn all of
-it into a daily plan.
+Off-grid, AI-driven farming on two plots **2256 km apart**: **Prora** on the German Baltic coast
+cultivated through summer, **Castelo Branco** in central Portugal through winter. A solar-powered
+field node measures soil and weather; a laptop-side Python stack merges that with decades of public
+station and reanalysis records, forecasts its own solar budget, computes the Thun biodynamic
+day-type from first principles, and asks a **local** LLM to turn all of it into a daily plan.
+
+| | Prora | Castelo Branco |
+|---|---|---|
+| Where | Ruegen, German Baltic coast | central Portugal, inland |
+| Latitude | 54.39 N | 39.82 N |
+| Cultivated through | summer | winter |
+| Reference data | DWD station 00183 (Arkona), 33.5 km, daily from 1947 | IPMA long series, backed by ERA5-Land |
+| Solstice daylight / noon sun | 7.0 h / 12.2 deg | 9.2 h / 26.7 deg |
+
+The two plots are **not** equally well observed, and this repo says so everywhere it matters rather
+than averaging the difference away. See [ADR-0007](docs/DECISIONS.md).
 
 > **How much of a small farm's daily decision-making can genuinely off-grid AI handle end to end,
 > from sensor to scheduler?**
@@ -47,11 +58,14 @@ valuable one. See [The Thun calendar](#the-thun-calendar-done-honestly).
 
 ## Why the node is a Pico W, not a Raspberry Pi
 
-The project brief said "Raspberry Pi". The Dutch winter says otherwise.
+The project brief said "Raspberry Pi". A Baltic winter says otherwise.
 
-<img src="docs/img/dutch-irradiance.svg" alt="De Bilt 24-hour mean irradiance: 200 W/m² in June against 20 W/m² in December, a factor of ten" width="100%">
+<img src="docs/img/winter-sun.svg" alt="Winter solstice sun at the two plots: Prora 7.0 hours of daylight and a noon sun at 12.2 degrees, Castelo Branco 9.2 hours at 26.7 degrees" width="100%">
 
-A Pi Zero 2 W idles at 0.4–0.6 W; even halted it draws ~50 mA. At 0.5 December peak-sun-hours that
+**Prora sizes the hardware.** The node is one design, built once and driven between the plots, so it
+gets built for the worse case. Castelo Branco does not get a vote.
+
+A Pi Zero 2 W idles at 0.4–0.6 W; even halted it draws ~50 mA. Against a Baltic December that
 means roughly a 60 W panel and 100 Wh of battery, a caravan installation bolted to a birdbox.
 
 <img src="docs/img/power-budget.svg" alt="Daily energy: Pi always-on 14.4 Wh, Pi duty-cycled 2.4 Wh, Pico W duty-cycled 0.16 Wh" width="100%">
@@ -159,7 +173,8 @@ Two failure modes will kill the node before any sensor does:
 
 **Condensation.** A sealed box breathes: it warms in the day and pushes air out, cools at night and
 sucks damp air in through every imperfection, and over weeks it pumps itself full of water. **A
-tighter seal makes this worse.** In the Dutch climate this is a certainty, not a risk. Fit a
+tighter seal makes this worse.** On a Baltic island, in marine air, this is a certainty rather
+than a risk. Fit a
 **Gore-type ePTFE pressure-equalisation vent** (~€3, the highest-value three euros in the build), add
 indicating desiccant, conformal-coat the boards, put every gland and the vent on the *underside*, and
 drip-loop every cable.
@@ -192,24 +207,38 @@ whole reason for the layering.
 
 ## Weather and history
 
-| Source | What for | Access |
-|---|---|---|
-| **KNMI script service** | De Bilt **station 260**, ~6 km NE of Utrecht. **Daily series from 1901-01-01.** Ground truth. Includes `Q` (global radiation) and `EV24` (Makkink reference ET). | `daggegevens.knmi.nl/klimatologie/daggegevens?stns=260&vars=ALL&…`, **no API key** |
-| **Open-Meteo archive** | ERA5-Land 0.1° (~11 km), **1950→present**, 5-day latency. Soil moisture and temperature at depth, `et0_fao_evapotranspiration`, VPD: the things a weather station cannot measure. | `archive-api.open-meteo.com/v1/archive?…&models=era5_land` |
-| **Open-Meteo forecast** | **KNMI Harmonie AROME at 2 km, hourly updates**, KNMI's own operational high-res model. Best available for a Utrecht plot. | `api.open-meteo.com/v1/forecast?…&models=knmi_harmonie_arome_netherlands` |
-| **Open-Meteo satellite** | Satellite-*observed* irradiance (SARAH3, 5 km, 1983→). Computes **plane-of-array irradiance** from `tilt`+`azimuth`, removing a whole transposition step from the PV model. | `satellite-api.open-meteo.com/v1/archive?…&tilt=65&azimuth=0` |
-| **PVGIS (EU JRC)** | One-off system sizing and optimum tilt for the exact coordinates. Design tool, not a forecasting tool. | `re.jrc.ec.europa.eu/api/v5_3/PVcalc?…&optimalangles=1` |
+Two plots in two countries, so two reference networks. Everything here is free and public.
 
-**Four traps, all of which produce silently wrong data:**
+| Source | Plot | What for | Access |
+|---|---|---|---|
+| **DWD Climate Data Center** | Prora | Station **00183, Arkona**, 33.5 km N on the same island. **Daily series from 1947.** Ground truth. And Arkona is one of only ~64 stations in DWD's **daily solar** network, so measured global radiation comes from the same station. | `opendata.dwd.de/…/climate/daily/kl/` and `…/daily/solar/`, **no API key**, CC BY 4.0 |
+| **IPMA** | Castelo Branco | The long climate series, published as **downloadable tables**. There is no open historical API for Portugal. | `ipma.pt/en/oclima/series.longas/` |
+| **Open-Meteo archive** | both | ERA5-Land 0.1° (~11 km), **1950→present**, 5-day latency. Soil moisture and temperature at depth, reference ET, VPD: the things a weather station cannot measure. **Primary history at Castelo Branco.** | `archive-api.open-meteo.com/v1/archive?…&models=era5_land` |
+| **Open-Meteo forecast** | **per plot** | `icon_d2` at **2 km** for Prora. `icon_eu` at **7 km** for Castelo Branco, because nothing at 2 km reaches Portugal. | `api.open-meteo.com/v1/forecast?…&models=icon_d2` |
+| **Open-Meteo satellite** | both | Satellite-*observed* irradiance (SARAH3, 5 km, 1983→). Computes **plane-of-array irradiance** from `tilt`+`azimuth`, removing a whole transposition step from the PV model. | `satellite-api.open-meteo.com/v1/archive?…&tilt=70&azimuth=0` |
+| **PVGIS (EU JRC)** | both | One-off system sizing and optimum tilt, per plot. Design tool, not a forecasting tool. | `re.jrc.ec.europa.eu/api/v5_3/PVcalc?…&optimalangles=1` |
 
-- KNMI values are **integer-scaled**: temperatures in 0.1 °C, rain in 0.1 mm, radiation in J/cm²
-  (×2.778 for Wh/m²). `-1` in RH/SQ means "<0.05", not minus one.
-- **KNMI `EV24` is Makkink; Open-Meteo `et0_fao_evapotranspiration` is FAO-56 Penman-Monteith.** They
-  will not agree. Never mix them in one series.
+**The asymmetry is the point.** At Prora the station record is primary and reanalysis is the check.
+At Castelo Branco it runs the other way round. The plots do not carry equal evidence weight, and no
+analysis may pool them silently.
+
+**Five traps, all of which produce silently wrong data:**
+
+- DWD's missing value is **`9990.0`**. Not blank, not negative, not NaN. A naive mean sails straight
+  past it and returns something absurd.
+- **DWD's daily `kl` product contains no global radiation at all**, only sunshine duration.
+  Radiation is a separate, far sparser product. Code written expecting one-file-has-everything will
+  produce an empty radiation column and never complain.
+- **Reference evapotranspiration is not one quantity.** Different services compute it by different
+  formulas. Never mix two providers' ET in one series.
 - **Open-Meteo's archive and forecast use different soil depth bins** (archive 0–7/7–28/28–100 cm;
-  forecast 0/6/18/54 cm). You cannot concatenate them without an explicit mapping step.
-- KNMI states its station series are **unsuitable for trend analysis** (relocations, instrument
-  changes). Fine operationally, wrong for climate trending.
+  ICON forecast 0/6/18/54 cm). You cannot concatenate them without an explicit mapping step.
+- Station series are **unsuitable for trend analysis** (relocations, instrument changes). Fine
+  operationally, wrong for climate trending. True of DWD and IPMA alike.
+
+**And one trap that exists only because there are two plots.** Two networks, two metadata
+languages, two timezones, two solar regimes. Every row carries its `site`; nothing gets pooled
+without a stated reason; a model fitted on one plot has to prove itself on the other.
 
 Full detail in [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md). Open-Meteo is CC-BY-4.0; attribute it.
 
@@ -364,9 +393,9 @@ one-acre/
 │
 ├── docs/
 │   ├── BUILD_PLAN.md               the step-by-step plan: phases, done-when criteria
-│   ├── DECISIONS.md                ADRs 0001–0005 (0004 is still open: the radio)
-│   ├── SITE.md                     ⚠ fill in Phase 0: coordinates, siting, LINK DISTANCE
-│   ├── DATA_SOURCES.md             KNMI / Open-Meteo / PVGIS endpoints, units, traps
+│   ├── DECISIONS.md                ADRs 0001–0007 (0004 is still open: the radio, per plot)
+│   ├── SITE.md                     coordinates done; ⚠ siting + LINK DISTANCE still open
+│   ├── DATA_SOURCES.md             DWD / IPMA / Open-Meteo / PVGIS endpoints, units, traps
 │   ├── POWER_BUDGET.md             ⚠ measure dormant current, then size panel + battery
 │   ├── UNCERTAINTY.md              what each channel is actually worth, per sensor
 │   ├── PREREGISTRATION.md          ⚠ freeze BEFORE the first sowing
@@ -385,13 +414,14 @@ one-acre/
 │   └── power/duty_cycle.py         wake → read → advertise → sleep
 │
 ├── src/oneacre/                    the laptop package
-│   ├── config.py                   site constants: lat/lon, station, panel geometry
+│   ├── config.py                   SITES: the two plots, refs, forecast models, panel geometry
 │   ├── cli.py                      `oneacre ingest|weather|biodynamic|solar|brief`
 │   ├── ingest/
 │   │   ├── ble_client.py           bleak central (laptop) ← node peripheral
 │   │   ├── lora_client.py          same contract, if ADR-0004 says LoRa
-│   │   ├── knmi.py                 De Bilt 260, 1901 → present
-│   │   ├── openmeteo.py            ERA5-Land archive · Harmonie AROME · satellite GTI
+│   │   ├── dwd.py                  Prora: Arkona 00183, daily kl + solar, 1947 → present
+│   │   ├── ipma.py                 Castelo Branco: long series, no open historical API
+│   │   ├── openmeteo.py            ERA5-Land archive · ICON forecast · satellite GTI
 │   │   └── pvgis.py                one-off system sizing
 │   ├── store/
 │   │   ├── schema.sql              readings · weather · daytypes · plantings
@@ -448,7 +478,7 @@ can actually check; nothing is done because code exists.
 | **2 · The link** | Bluetooth off for 20 minutes, back on, and **every** reading from the gap is in the database with correct `measured_at` |
 | **3 · Power + deployment** | 14 consecutive days outdoors, no gaps, no intervention, battery recovering on every sunny day, then 14 more spanning a genuinely overcast week |
 | **4 · Calibration** | `calibration.apply()` turns a raw row into a physical row, and `docs/UNCERTAINTY.md` states a defensible error bar per channel |
-| **5 · Weather + history** | `oneacre weather backfill --from 1990-01-01` produces a continuous series with an explicit gap report, and local readings overlay De Bilt visibly |
+| **5 · Weather + history** | `oneacre weather backfill --site prora --from 1990-01-01` produces a continuous series per plot with an explicit gap report, and local readings overlay that plot's reference record visibly |
 | **6 · Biodynamic engine** | Ophiuchus folds *and is flagged*; strays return `None`; validation mismatches cluster on the three known causes |
 | **7 · Solar forecast** | Next-24h Wh with a stated interval, and a model card reporting skill against **both** baselines on a walk-forward split |
 | **8 · LLM scheduler** | Seven consecutive dated briefs, each traceable to its inputs, and at least one entry in `DISAGREEMENTS.md` |
@@ -458,7 +488,7 @@ can actually check; nothing is done because code exists.
 
 25 issues, created by [`scripts/create_issues.sh`](scripts/create_issues.sh) once the repo is pushed:
 site survey → CI → bench sensors → packet format → BLE peripheral → ingest → ring buffer → dormant
-current → power path → deployment → KNMI → Open-Meteo → PVGIS → day-type engine → declination and
+current → power path → deployment → DWD → Open-Meteo → PVGIS → day-type engine → declination and
 blanking → printed-calendar validation → calibration → solar baselines → LSTM → scheduler context →
 LLM + constraints → daily briefs → pre-registration → vision spike.
 
@@ -469,7 +499,7 @@ LLM + constraints → daily briefs → pre-registration → vision spike.
 | BLE unreliable at the real distance | **High if >30 m** | Silent data loss in bad weather | Measure in Phase 0; the `ingest/` seam makes LoRa a one-module change |
 | Condensation kills the node | **Near-certain without a vent** | A dead node in February | ePTFE vent + desiccant + conformal coat + underside glands. €5 total. |
 | LiFePO4 charged below 0 °C | Moderate | Permanent, irreversible cell damage | Verify BMS low-temp cutoff **in a freezer** before deployment |
-| Data plausible but wrong (self-heating, no shield, reed bounce) | **High: this is the default outcome** | Months of confidently wrong analysis | The four bench tests in Phase 1; cross-check against De Bilt in Phase 4 |
+| Data plausible but wrong (self-heating, no shield, reed bounce) | **High: this is the default outcome** | Months of confidently wrong analysis | The four bench tests in Phase 1; cross-check against each plot's reference record in Phase 4 |
 | LSTM overfits one winter | High | An impressive model that forecasts nothing | Baselines first, walk-forward only, pre-train on reconstructed history |
 | LLM does arithmetic and gets it wrong | **Certain if allowed** | Confident, plausible, wrong advice | All numbers in Python; the model selects and explains only |
 | Biodynamic analysis finds a spurious effect | Moderate | The project's credibility | Pre-register; weight for unequal day-type frequency |
@@ -493,8 +523,9 @@ oneacre status
 2. **Order the BOM.** Kiwi + Tinytronics + NKON covers all of it; the CN3791 is the only AliExpress
    item and therefore the long pole; order that first.
 3. **Push the repo and create the issues** (`scripts/create_issues.sh`).
-4. **Start Phase 5 tonight**: it needs no hardware. The KNMI ingester against station 260 is an
-   hour's work and gives you 125 years of De Bilt to look at while you wait for parcels.
+4. **Start Phase 5 tonight**: it needs no hardware. The DWD ingester against Arkona (00183) is an
+   hour's work and gives you 78 years of Baltic-coast daily data, radiation included, to look at
+   while you wait for parcels. Do Prora first; Castelo Branco needs the IPMA table by hand.
 5. **Buy one printed Thun calendar** now; you need it in Phase 6 and it ships slowly.
 
 ## Regenerating the figures
@@ -514,6 +545,6 @@ terracotta are indistinguishable to a deuteranope.
 
 ## Licence and attribution
 
-MIT for the code. Weather data from **KNMI** (CC0 for the in-situ observation datasets) and
+MIT for the code. Weather data from **DWD** (CC BY 4.0, attribute it), **IPMA**, and
 **Open-Meteo** (CC-BY-4.0, attribute it). Ephemerides from **JPL** (public domain) via
 **skyfield** (MIT). No copyrighted calendar data is redistributed here, and none should be.

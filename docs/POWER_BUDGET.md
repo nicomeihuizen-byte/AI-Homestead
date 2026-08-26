@@ -20,9 +20,15 @@ C-SDK dormant, 180 uA for the bare RP2040 die. **Put a multimeter in series and 
 `Panel_W = Daily_Wh / (PSH_Dec x derate)` with PSH_Dec ~= 0.55 and derate ~= 0.55,
 i.e. **divide daily Wh by ~0.30**.
 
-De Bilt: June 24 h mean ~200 W/m2, December ~20 W/m2, a factor of ten. And that is a MONTHLY
-MEAN: NL routinely delivers runs of 5-10 consecutive days at 0.05-0.15 PSH, near-zero harvest.
-**Size the panel for the mean and the battery for the dark run.**
+**Size for Prora**, the northern plot: 7.0 h of daylight on the winter solstice with the sun
+peaking at 12.2 degrees. Castelo Branco (9.2 h, 26.7 degrees) is the easy site and does not get a
+vote, because the node is one design driven between both plots.
+
+TODO Phase 5: **PSH_Dec above is still the old De Bilt figure. Re-derive it for Prora** from DWD
+station 00183 (Arkona) daily solar data, which is measured global radiation 33.5 km from the plot.
+Expect it to come out lower. Whatever the monthly mean turns out to be, a Baltic winter delivers
+runs of consecutive near-zero days, so **size the panel for the mean and the battery for the dark
+run.**
 
 | | Computed | Chosen | Why |
 |---|---|---|---|

@@ -26,7 +26,7 @@ That is a research question, not a product spec, and the plan below is built to 
  │  ├ BME280 air T/RH/P     │        │                                  │
  │  ├ DS18B20 ×2 soil T     │        │  ingest/                         │
  │  ├ capacitive soil VWC×2 │  BLE   │   ├ ble_client  (bleak)          │
- │  ├ BH1750 lux            │ ─────► │   ├ knmi        (De Bilt 260)    │
+ │  ├ BH1750 lux            │ ─────► │   ├ dwd / ipma  (per plot)       │
  │  ├ tipping rain gauge    │  or    │   ├ openmeteo   (ERA5-Land +     │
  │  ├ anemometer + vane     │  LoRa  │   │              Harmonie AROME) │
  │  └ battery V / panel V   │        │   └ pvgis       (PV design)      │
@@ -40,7 +40,7 @@ That is a research question, not a product spec, and the plan below is built to 
                                      └──────────────────────────────────┘
 ```
 
-**Why the node is a Pico W and not a Raspberry Pi.** A Pi Zero 2 W idles at 0.4–0.6 W. In a Dutch December the 24-hour mean irradiance at De Bilt is ~20 W/m² against ~200 W/m² in June, a **factor of ten**, not a factor of two ([KNMI](https://www.knmi.nl/over-het-knmi/nieuws/zonnestraling-in-december-vergeleken-met-juni)). That puts an always-on Zero 2 W at a ~60 W panel and ~100 Wh of battery: a caravan installation bolted to a birdbox. A duty-cycled Pico W node runs on 0.08–0.24 Wh/day: a 5 W panel and a €3 cell with 60 days of autonomy. **Factor of ~60 in the power budget.** The Pi still has a place in this project; it just isn't in the field box.
+**Why the node is a Pico W and not a Raspberry Pi.** A Pi Zero 2 W idles at 0.4–0.6 W. **Prora sizes the hardware**: on the winter solstice it gets 7.0 hours of daylight and the sun peaks at 12.2°, against 9.2 hours and 26.7° at Castelo Branco. The node is one design driven between both plots, so it is built for the worse case. That puts an always-on Zero 2 W at a ~60 W panel and ~100 Wh of battery: a caravan installation bolted to a birdbox. A duty-cycled Pico W node runs on 0.08–0.24 Wh/day: a 5 W panel and a €3 cell with 60 days of autonomy. **Factor of ~60 in the power budget.** The Pi still has a place in this project; it just isn't in the field box.
 
 **Why not skip BLE and use WiFi/LoRa.** Decide this by measured distance, and decide it in Phase 0 (§3), not later:
 
@@ -82,7 +82,7 @@ Expect <400 raw counts across the entire dry→saturated span (the ADC is not th
 - **No radiation shield = you are not measuring air temperature.** An unshielded sensor in sun errs by up to ~3 °C, and inadequate airflow *compresses the diurnal range*, underestimating maxima and overestimating minima, which looks plausible and is therefore worse than a constant offset. Print a multi-plate Stevenson shield in **ASA or PETG, not PLA** (PLA loses notable strength outdoors within 30 days). Mount the BME280 in the shield on a short I²C tail, away from the electronics' waste heat.
 
 ### The condensation trap that will kill the node
-A sealed box breathes: warm day, air expands out; cold night, damp air sucked in through every imperfection; over weeks it pumps itself full of water. **A tighter seal makes this worse.** In the Dutch climate this is a certainty, not a risk. Fit a **Gore-type ePTFE pressure-equalisation vent** (~€3, the highest-value three euros in the build), add indicating desiccant, conformal-coat the boards, put every gland and the vent on the *underside*, and drip-loop every cable. Use the wooden birdbox as the decorative rain/sun shell and put a proper IP66 ABS box **inside** it; the air gap between them buffers thermal swings nicely.
+A sealed box breathes: warm day, air expands out; cold night, damp air sucked in through every imperfection; over weeks it pumps itself full of water. **A tighter seal makes this worse.** On a Baltic island, in marine air, this is a certainty rather than a risk. Fit a **Gore-type ePTFE pressure-equalisation vent** (~€3, the highest-value three euros in the build), add indicating desiccant, conformal-coat the boards, put every gland and the vent on the *underside*, and drip-loop every cable. Use the wooden birdbox as the decorative rain/sun shell and put a proper IP66 ABS box **inside** it; the air gap between them buffers thermal swings nicely.
 
 ### And one destroys hardware rather than data
 **Never charge LiFePO4 below 0 °C.** Lithium plates on the anode: 1–5% permanent capacity loss per event, irreversible, dendrite risk. Many cheap 1S BMS boards **do not implement low-temperature charge cutoff**: verify the datasheet or add an NTC + MOSFET yourself. NL frost mornings are also the clear-sky sunny ones, so the correlation works against you. Bury or insulate the cell; soil at 30 cm barely drops below 3–4 °C.
@@ -156,7 +156,7 @@ Each phase has a **goal**, **steps**, and a **done-when** you can actually check
 *If Phase 0 said LoRa:* same contract, `ingest/lora_client.py` instead, SX1262 point-to-point with a sequence-numbered ack. Everything downstream is unchanged; that is the layering earning its keep.
 
 ### Phase 3: Power and deployment (1 weekend + a winter of patience)
-**Goal:** the node survives outdoors, unattended, through a Dutch winter.
+**Goal:** the node survives outdoors, unattended, through a Baltic winter at Prora. That is the hard case; Castelo Branco is the easy one.
 
 1. **Measure your own dormant current before sizing anything.** Published Pico W deep-sleep figures disagree by ~30× (16 mA under MicroPython's fake deepsleep, ~0.2–0.5 mA for a proper C-SDK dormant, 180 µA for the bare die). Put a multimeter in series and find out. This changes panel sizing by a factor of several; it does not change the Pico-vs-Pi conclusion.
 2. Duty cycle: wake → read → append to buffer → advertise for N seconds → sleep. Budget from your measured number, then **double the panel**: in December the marginal cost of an oversized panel is trivial and it is the only thing harvesting on a dim day.
@@ -164,7 +164,7 @@ Each phase has a **goal**, **steps**, and a **done-when** you can actually check
 4. Enclosure: IP66 box inside the birdbox, Gore vent and all glands on the underside, desiccant in, boards conformal-coated, drip loops on every cable. Radiation shield separate, on a short I²C tail.
 5. Panel at **60–75° from horizontal, due south**, much steeper than the annual optimum (~36°). You are deliberately sacrificing summer surplus to catch winter's low sun, and the steep angle sheds snow, leaves and grime.
 6. Log **battery voltage and panel voltage as sensor channels.** These are the training data for Phase 7 and the early warning for everything else.
-7. Mount height: WMO convention is 1.25–2 m for comparability with KNMI. Lower is fine if you care about microclimate at the plants, but **write which you chose into the metadata**, or your data is not comparable with anything.
+7. Mount height: WMO convention is 1.25–2 m for comparability with the reference station. **Use the same height at both plots**, or you have added a confound to the one comparison this project exists to make. Lower is fine if you care about microclimate at the plants, but **write which you chose into the metadata**, or your data is not comparable with anything.
 
 **Done when:** 14 consecutive days outdoors with no gaps, no manual intervention, and battery voltage recovering to full on every sunny day. Then a second 14 days spanning a genuinely overcast week.
 
@@ -172,8 +172,8 @@ Each phase has a **goal**, **steps**, and a **done-when** you can actually check
 **Goal:** raw counts become numbers with units and error bars.
 
 1. **Soil moisture:** 5–10 jars of your own soil, oven-dried, rewetted to known gravimetric water fractions at consistent bulk density. Fit and store the curve per probe (they differ) in `data/calibration/`. Model the temperature cross-sensitivity from the co-located DS18B20 and subtract it.
-2. **Air temperature:** co-locate with De Bilt 260 daily values for a fortnight. A persistent offset is your shield or siting; a *compressed diurnal range* means inadequate ventilation.
-3. **Rain:** cross-check monthly totals against De Bilt. Persistent under-reading is usually a not-quite-level gauge.
+2. **Air temperature:** co-locate with the plot's reference record for a fortnight (DWD 00183 at Prora; ERA5-Land at Castelo Branco, which is a weaker check and should be labelled as such). A persistent offset is your shield or siting; a *compressed diurnal range* means inadequate ventilation.
+3. **Rain:** cross-check monthly totals against the reference record. Persistent under-reading is usually a not-quite-level gauge.
 4. **pH and fertility:** one lab sample per plot. This is your ground truth and it costs about what one bad sensor costs.
 5. Every calibration is a versioned file, applied **on read**, never destructively to raw rows. You will improve these curves and want to reprocess history.
 
@@ -186,21 +186,24 @@ Each phase has a **goal**, **steps**, and a **done-when** you can actually check
 
 | Source | What for | Access |
 |---|---|---|
-| **KNMI script service** | De Bilt **station 260**, ~6 km NE of Utrecht, **daily data from 1901-01-01**. Ground truth. Includes `Q` (global radiation) and `EV24` (Makkink reference ET). | `https://www.daggegevens.knmi.nl/klimatologie/daggegevens?stns=260&vars=ALL&start=…&end=…&fmt=json`, **no API key** |
+| **DWD CDC** (Prora) | Station **00183, Arkona**, 33.5 km N, same island. **Daily from 1947.** Ground truth. Also in DWD's ~64-station **daily solar** network, so measured global radiation comes from the same station. | `opendata.dwd.de/…/climate/daily/kl/` + `…/daily/solar/`, **no API key**, CC BY 4.0 |
+| **IPMA** (Castelo Branco) | Long climate series as **downloadable tables**. No open historical API for Portugal, so ERA5-Land is primary here and IPMA is the check. | `ipma.pt/en/oclima/series.longas/` |
 | **Open-Meteo archive** | ERA5-Land 0.1° (~11 km), **1950→present**, 5-day latency. Soil moisture and soil temperature at depth, `et0_fao_evapotranspiration`, VPD: the things a weather station cannot measure. | `archive-api.open-meteo.com/v1/archive?…&models=era5_land`, no key, non-commercial |
-| **Open-Meteo forecast** | **KNMI Harmonie AROME at 2 km, hourly updates**, KNMI's own operational high-res model. Best available forecast for a Utrecht plot. | `api.open-meteo.com/v1/forecast?…&models=knmi_harmonie_arome_netherlands` |
+| **Open-Meteo forecast** | **Per plot, and not the same resolution.** `icon_d2` at 2 km for Prora; `icon_eu` at 7 km for Castelo Branco, because nothing at 2 km reaches Portugal. | `api.open-meteo.com/v1/forecast?…&models=icon_d2` |
 | **Open-Meteo satellite radiation** | Satellite-*observed* irradiance (SARAH3, 5 km, 1983→). Computes **plane-of-array irradiance** for you from `tilt`+`azimuth`, which removes an entire transposition step from the PV model. | `satellite-api.open-meteo.com/v1/archive?…&tilt=65&azimuth=0` |
 | **PVGIS (EU JRC)** | One-off system sizing and optimum tilt for your exact coordinates. Design tool, not a forecasting tool. | `re.jrc.ec.europa.eu/api/v5_3/PVcalc?…&optimalangles=1`, free, no registration |
 
 **Four traps in this phase, all of which produce silently wrong data:**
-- KNMI values are **integer-scaled**: temperatures in 0.1 °C, rain in 0.1 mm, radiation in J/cm² (×2.778 for Wh/m²). `-1` in RH/SQ means "<0.05", not "minus one".
-- **KNMI `EV24` is Makkink; Open-Meteo `et0_fao_evapotranspiration` is FAO-56 Penman-Monteith.** They will not agree. Never mix them in one series.
+- DWD's missing value is **`9990.0`**: not blank, not negative, not NaN. A naive mean sails straight past it and returns something absurd.
+- **DWD's daily `kl` product carries no global radiation at all**, only sunshine duration. Radiation is a separate, far sparser product. Code expecting one-file-has-everything produces an empty column and never complains.
+- **Reference evapotranspiration is not one quantity.** Different services compute it by different formulas. Never mix two providers' ET in one series.
 - **Open-Meteo's archive and forecast soil layers use different depth bins** (archive: 0–7/7–28/28–100 cm; forecast: 0/6/18/54 cm). You cannot concatenate them without an explicit mapping step.
-- KNMI states its station series are **unsuitable for trend analysis** (relocations, instrument changes). Fine operationally, wrong for climate trending.
+- Station series are **unsuitable for trend analysis** (relocations, instrument changes). Fine operationally, wrong for climate trending. True of DWD and IPMA alike.
+- **Two plots, so every row carries its `site`.** Two networks, two timezones, two solar regimes. Nothing gets pooled without a stated reason.
 
 **Steps:** one ingester module per source, each writing a tidy long-format table into the store with a `source` column. Cache aggressively; these are historical facts and do not change. Open-Meteo free tier: <10k calls/day, 5k/hour, 600/min, CC-BY-4.0, attribute it.
 
-**Done when:** `oneacre weather backfill --from 1990-01-01` produces a continuous daily series with an explicit gap report, and a plot of your Phase-3 local readings overlaid on De Bilt tracks visibly.
+**Done when:** `oneacre weather backfill --site prora --from 1990-01-01` produces a continuous daily series with an explicit gap report, and a plot of your Phase-3 local readings overlaid on that plot's reference record tracks visibly. Then repeat for `castelo_branco`, where the reference is ERA5-Land.
 
 ### Phase 6: Biodynamic calendar engine (a weekend, the most interesting week of the project)
 Its own section: see §5.
@@ -307,7 +310,7 @@ one-acre/
 │                   DATA_SOURCES, BIODYNAMIC_METHOD, PREREGISTRATION, UNCERTAINTY
 ├─ node/            MicroPython for the Pico W: sensors/, link/, power/
 ├─ src/oneacre/     Laptop package
-│   ├─ ingest/      ble_client, lora_client, knmi, openmeteo, pvgis
+│   ├─ ingest/      ble_client, lora_client, dwd, ipma, openmeteo, pvgis
 │   ├─ store/       schema.sql, db.py           (SQLite; parquet exports)
 │   ├─ biodynamic/  ephemeris, constellations, calendar, validate
 │   ├─ solar/       features, baselines, lstm
@@ -345,7 +348,7 @@ one-acre/
 | 9 | Measure real dormant current | 3 | A number in `docs/POWER_BUDGET.md` |
 | 10 | Power path assembled, low-temp cutoff verified | 3 | Cell will not charge below 0 °C, tested in a freezer |
 | 11 | Enclosure, vent, shield, deployment | 3 | 14 days outdoors, zero gaps |
-| 12 | KNMI ingester (station 260, 1901→) | 5 | Backfill with gap report |
+| 12 | DWD ingester (Arkona 00183, 1947→) | 5 | Backfill with gap report, per site |
 | 13 | Open-Meteo archive + forecast ingesters | 5 | ERA5-Land soil layers stored; depth-bin mapping documented |
 | 14 | Satellite radiation + PVGIS sizing | 5 | Optimum tilt for the actual site, recorded |
 | 15 | Skyfield day-type engine | 6 | Ophiuchus and out-of-zodiac cases handled explicitly |
@@ -369,7 +372,7 @@ one-acre/
 | BLE link unreliable at the real distance | **High if >30 m** | Silent data loss in bad weather | Measure in Phase 0; switch to LoRa. The `ingest/` boundary makes this a one-module change. |
 | Condensation kills the node | **Near-certain without a vent** | A dead node in February | ePTFE vent + desiccant + conformal coat + underside glands. €5 total. |
 | LiFePO4 charged below 0 °C | Moderate | Permanent, irreversible cell damage | Verify BMS low-temp cutoff **in a freezer** before deployment |
-| Sensor data plausible but wrong (self-heating, no shield, reed bounce) | **High: this is the default outcome** | Months of confidently wrong analysis | The four bench tests in Phase 1; cross-check against De Bilt in Phase 4 |
+| Sensor data plausible but wrong (self-heating, no shield, reed bounce) | **High: this is the default outcome** | Months of confidently wrong analysis | The four bench tests in Phase 1; cross-check against each plot's reference record in Phase 4 |
 | LSTM overfits one winter | High | An impressive-looking model that forecasts nothing | Baselines first (#19), walk-forward only, pre-train on reconstructed history |
 | LLM does arithmetic and gets it wrong | **Certain if allowed** | Confident, plausible, wrong advice | All numbers computed in Python; LLM selects and explains only |
 | Biodynamic analysis finds a spurious effect | Moderate | The project's credibility | Pre-register (#24); weight for unequal day-type frequency |
@@ -396,17 +399,17 @@ one-acre/
 1. **Walk the plot-to-laptop distance and write the number in `docs/SITE.md`.** Everything in Phase 2 depends on it.
 2. **Order the BOM.** Kiwi + Tinytronics + NKON covers all of it; the CN3791 is the only AliExpress item and therefore the long pole; order that first.
 3. **Push the repo and create the issues** (`scripts/create_issues.sh`).
-4. **Start Phase 5 tonight**: it needs no hardware. The KNMI ingester against station 260 is an hour's work and gives you 125 years of De Bilt to look at while you wait for parcels.
+4. **Start Phase 5 tonight**: it needs no hardware. The DWD ingester against Arkona (00183) is an hour's work and gives you 78 years of Baltic-coast daily data, radiation included, to look at while you wait for parcels. Do Prora first; Castelo Branco needs the IPMA table fetched by hand.
 5. **Buy one printed Thun calendar** now; you need it in Phase 6 and it ships slowly.
 
 ---
 
 ## Appendix: sources
 
-**Hardware:** [KNMI Dec vs Jun irradiance](https://www.knmi.nl/over-het-knmi/nieuws/zonnestraling-in-december-vergeleken-met-juni) · [Cave Pearl: capacitive soil sensors](https://thecavepearlproject.org/2020/10/27/hacking-a-capacitive-soil-moisture-sensor-for-frequency-output/) · [Cave Pearl: BH1750 vs PAR](https://thecavepearlproject.org/2024/08/10/using-a-bh1750-lux-sensor-to-measure-par/) · [Niubol: how NPK sensors work](https://www.niubol.com/Product-knowledge/Soil-NPK-Sensors-Principle.html) · [Vasques et al. 2024, in-situ pH](https://soil.copernicus.org/articles/10/321/2024/) · [BME280 self-heating](https://github.com/esphome/issues/issues/402) · [Barani: radiation shield error](https://www.baranidesign.com/faq-articles/2019/5/5/sensor-and-radiation-shield-comparison-calculator-for-temperature-error) · [3D-printed shields, ASA vs PLA](https://hackaday.com/2022/02/04/3d-printed-radiation-shields-get-put-to-the-test/) · [Gore condensation management](https://www.gore.com/solutions-condensation-management) · [LiFePO4 cold charging](https://gridwright.com/blog/lifepo4-cold-charging) · [bleak docs (client-only)](https://bleak.readthedocs.io/) · [BLE throughput](https://novelbits.io/bluetooth-5-speed-maximum-throughput/)
+**Hardware:** [Cave Pearl: capacitive soil sensors](https://thecavepearlproject.org/2020/10/27/hacking-a-capacitive-soil-moisture-sensor-for-frequency-output/) · [Cave Pearl: BH1750 vs PAR](https://thecavepearlproject.org/2024/08/10/using-a-bh1750-lux-sensor-to-measure-par/) · [Niubol: how NPK sensors work](https://www.niubol.com/Product-knowledge/Soil-NPK-Sensors-Principle.html) · [Vasques et al. 2024, in-situ pH](https://soil.copernicus.org/articles/10/321/2024/) · [BME280 self-heating](https://github.com/esphome/issues/issues/402) · [Barani: radiation shield error](https://www.baranidesign.com/faq-articles/2019/5/5/sensor-and-radiation-shield-comparison-calculator-for-temperature-error) · [3D-printed shields, ASA vs PLA](https://hackaday.com/2022/02/04/3d-printed-radiation-shields-get-put-to-the-test/) · [Gore condensation management](https://www.gore.com/solutions-condensation-management) · [LiFePO4 cold charging](https://gridwright.com/blog/lifepo4-cold-charging) · [bleak docs (client-only)](https://bleak.readthedocs.io/) · [BLE throughput](https://novelbits.io/bluetooth-5-speed-maximum-throughput/)
 
-**Data:** [KNMI script service](https://www.knmi.nl/kennis-en-datacentrum/achtergrond/data-ophalen-vanuit-een-script) · [KNMI Data Platform](https://dataplatform.knmi.nl/) · [De Bilt 260 series from 1901](https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/temp_260.txt) · [Open-Meteo historical](https://open-meteo.com/en/docs/historical-weather-api) · [Open-Meteo forecast](https://open-meteo.com/en/docs) · [Open-Meteo satellite radiation](https://open-meteo.com/en/docs/satellite-radiation-api) · [Open-Meteo terms](https://open-meteo.com/en/terms) · [PVGIS API](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/api-non-interactive-service_en)
+**Data:** [DWD Climate Data Center](https://www.dwd.de/EN/ourservices/cdc/cdc.html) · [DWD open data, daily climate](https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/kl/) · [DWD daily solar](https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/solar/) · [IPMA long series](https://www.ipma.pt/en/oclima/series.longas/) · [Open-Meteo historical](https://open-meteo.com/en/docs/historical-weather-api) · [Open-Meteo forecast](https://open-meteo.com/en/docs) · [Open-Meteo satellite radiation](https://open-meteo.com/en/docs/satellite-radiation-api) · [Open-Meteo terms](https://open-meteo.com/en/terms) · [PVGIS API](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/api-non-interactive-service_en)
 
 **Biodynamic:** [Steiner GA 327](https://rsarchive.org/Lectures/GA327/) · [Biodynamic Association UK on the calendar](https://www.biodynamic.org.uk/the-biodynamic-sowing-and-planting-calendar/) · [Bross-Burkhardt critical review](https://terrabc.org/cms/uploads/2019/02/Mondkalender_und_Aussaattage_kritisch_betrachtet.pdf) · [Lunarium on unequal constellations](https://www.lunarium.co.uk/articles/lunar-gardening/) · [Mayoral et al. 2020](https://www.mdpi.com/2073-4395/10/7/955) · [Spiess 1990](https://www.tandfonline.com/doi/abs/10.1080/01448765.1990.9754544) · [Kollerstrom & Staudenmaier 2001](https://www.tandfonline.com/doi/abs/10.1080/01448765.2001.9754928) · [Chalker-Scott, WSU](https://s3.wp.wsu.edu/uploads/sites/403/2015/03/biodynamic-agriculture.pdf) · [Skyfield](https://rhodesmill.org/skyfield/) · [Thun-Verlag](https://thun-verlag.com/aussaattage2023/)
 
-**Uncertainties flagged during research, to resolve yourself:** Pico W true dormant current (sources disagree ~30×, measure it); BLE range figures (from an SEO-flavoured source, plan on half); Tinytronics prices (not machine-readable, verify at checkout); how Thun handles Ophiuchus (undocumented, check a printed edition); KNMI Data Platform hourly/daily dataset path identifiers (resolve from the dataset browser); the KNMI script service's long-term future (Dataverkenner is stated to eventually replace it, keep a fallback).
+**Uncertainties flagged during research, to resolve yourself:** Pico W true dormant current (sources disagree ~30×, measure it); BLE range figures (from an SEO-flavoured source, plan on half); Tinytronics prices (not machine-readable, verify at checkout); how Thun handles Ophiuchus (undocumented, check a printed edition); the exact start year of IPMA's Castelo Branco long series (fetch the published table); PVGIS optimum tilt at both plots, since the tilts in `config.py` are still a latitude+15 heuristic; and December peak-sun-hours at Prora, which `docs/POWER_BUDGET.md` still carries as the old De Bilt figure.

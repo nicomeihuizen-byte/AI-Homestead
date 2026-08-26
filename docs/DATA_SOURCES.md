@@ -1,48 +1,86 @@
 # Data sources
 
-## KNMI script service: no API key
-- Daily: `https://www.daggegevens.knmi.nl/klimatologie/daggegevens`
-- Hourly: `https://www.daggegevens.knmi.nl/klimatologie/uurgegevens`
-- Params: `stns` (260 = De Bilt), `vars` (`ALL` or groups), `start`/`end` (`YYYYMMDD` / `YYYYMMDDHH`), `fmt=json`
-- **Daily data from 1901-01-01.** Hourly from 1951. Latency: evening of the following day.
-- Key agronomic vars: `Q` global radiation (J/cm², ×2.778 → Wh/m²), `EV24` Makkink reference ET (0.1 mm)
-- **Integer-scaled**: temps 0.1 °C, rain 0.1 mm. `-1` in RH/SQ means "<0.05", not minus one.
-- KNMI states these series are **unsuitable for trend analysis** (relocations, instrument changes).
-- Licence: CC0 for in-situ observation datasets.
-- ⚠ KNMI's Dataverkenner is stated to eventually replace this page. Keep the KNMI Data Platform
-  (`api.dataplatform.knmi.nl`, free key, NetCDF, EDR API for point queries) as the fallback.
+Two plots in two countries, so two reference networks. Everything here is free and
+public. What is *not* symmetric between the plots is called out explicitly, because
+that asymmetry propagates into every model downstream.
 
-## Open-Meteo: no key for non-commercial, CC-BY-4.0, attribute it
-Limits: <10k calls/day, 5k/hour, 600/min.
+## Prora: DWD Climate Data Center, no API key
 
-- **Archive** `archive-api.open-meteo.com/v1/archive`: ERA5 0.25° 1940→, **ERA5-Land 0.1° 1950→**
-  (`models=era5_land`), 5-day latency. Soil layers 0–7 / 7–28 / 28–100 / 100–255 cm.
-  `et0_fao_evapotranspiration` (FAO-56 Penman-Monteith), VPD, GHI/DNI/DHI.
-- **Forecast** `api.open-meteo.com/v1/forecast`: **`models=knmi_harmonie_arome_netherlands`, 2 km,
-  hourly updates.** Best available for a Utrecht plot.
-  ⚠ **Forecast soil layers use different bins** (0 / 6 / 18 / 54 cm; moisture 0–1 / 1–3 / 3–9 /
-  9–27 / 27–81 cm). Cannot be concatenated with archive layers without an explicit mapping.
-- **Historical forecast** `historical-forecast-api.open-meteo.com/v1/forecast`: stitched high-res
-  model runs, ~2022→, 2 km, no latency. Gap-fills between ERA5-Land and now.
-- **Satellite radiation** `satellite-api.open-meteo.com/v1/archive`: SARAH3 5 km 1983→, MTG 2.5 km
-  10-min Feb 2026→. Pass `tilt`+`azimuth` for **plane-of-array irradiance**, which removes a whole
-  transposition step from the PV model.
+- Base: `https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate`
+- Daily climate: `daily/kl/historical/` and `daily/kl/recent/`. Station **00183, Arkona**,
+  33.5 km north of the plot on the same island. **Daily series from 1947-01-01.**
+- Daily radiation: `daily/solar/`. A separate, far sparser network, roughly **64 stations
+  nationally** against thousands for `kl`. Arkona is in it. That is luck, and it is the single
+  most useful fact in this document for a project whose binding constraint is the power budget.
+- Licence: CC BY 4.0. Attribute it.
 
-⚠ **KNMI `EV24` is Makkink; Open-Meteo `et0_fao_evapotranspiration` is Penman-Monteith.** They will
-not agree. Never mix them in one series.
+**Traps:**
 
-## PVGIS (EU JRC): free, no registration
-`https://re.jrc.ec.europa.eu/api/v5_3/{PVcalc|seriescalc|tmy}?...`
-Use `PVGIS-SARAH3` for Europe. `optimalangles=1` finds the optimum tilt/azimuth for the site.
-Limits: 30 req/s/IP; server-side calls only. Design tool, not for daily forecasting.
+- Missing value is **`9990.0`**. Not blank, not negative, not NaN. A naive mean sails straight
+  past it and returns something absurd. Filter before you aggregate.
+- **`daily/kl` contains no global radiation at all.** Sunshine duration only. Radiation is a
+  separate product. Code written with the KNMI habit of one-file-has-everything will produce an
+  empty radiation column and never complain.
+- Semicolon-separated CSV inside a zip, fields space-padded, every row terminated by a literal
+  `eor`. Strip before you cast.
+- `historical` stops some months back; `recent` covers the tail; they overlap. Deduplicate on
+  (station, date).
 
-## Cross-validation only
-- **E-OBS / ECA&D** v33.0e, 0.1°, 1950–2025, includes `QQ` radiation and an ensemble spread field
-  (useful for honest error bars). **Non-commercial research/education licence only.**
-- **NASA POWER** `power.larc.nasa.gov/api/temporal/daily/point`, community `AG`, 0.5° (~55 km):
-  too coarse to add much at a single Dutch site, but the ICASA output format feeds DSSAT/APSIM.
+## Castelo Branco: IPMA, and the honest gap
 
-## Not a data source: the Thun calendar
-Published editions are copyrighted compilations and, in the EU, additionally protected by the sui
-generis database right (Dir. 96/9/EC). The *dates* are astronomical facts and we compute them
-ourselves. A hand-keyed validation sample from one purchased edition stays local and gitignored.
+There is **no DWD or KNMI equivalent for Portugal.**
+
+- `https://api.ipma.pt/open-data/` serves **current** observations and forecasts, not deep history.
+  Fine as a live sanity check, useless for a thirty-year backfill.
+- Long climate series (roughly 50 mainland stations) are published as **downloadable tables** at
+  `https://www.ipma.pt/en/oclima/series.longas/`, not as a queryable endpoint. Fetch by hand once,
+  commit the parser, move on.
+- PT02 is a gridded daily precipitation dataset. Rainfall only.
+
+**Consequence, and it is structural rather than a detail:**
+
+| | Prora | Castelo Branco |
+|---|---|---|
+| Primary history | DWD station 00183 | ERA5-Land reanalysis |
+| Cross-check | ERA5-Land | IPMA long series |
+| Station radiation | yes | no |
+
+So the two plots carry different evidence weights. Any statement that compares them has to say
+which side is station-grade and which is reanalysis-grade, and **no analysis may pool them silently.**
+
+## Both plots: Open-Meteo
+
+This is the half of the pipeline that did not care about the move from one Dutch plot to two
+European ones.
+
+| Product | What for | Endpoint |
+|---|---|---|
+| **Archive (ERA5-Land)** | 0.1 deg (~11 km), **1950 to present**, 5-day latency. Soil moisture and temperature at depth, reference ET, VPD: the things a weather station cannot measure. | `archive-api.open-meteo.com/v1/archive?...&models=era5_land` |
+| **Forecast** | **Per site, and not the same resolution.** `icon_d2` at 2 km for Prora; `icon_eu` at 7 km for Castelo Branco. | `api.open-meteo.com/v1/forecast?...&models=icon_d2` |
+| **Satellite** | Satellite-*observed* irradiance (SARAH3, 5 km, 1983 to present). Computes plane-of-array irradiance from `tilt`+`azimuth`, removing a transposition step from the PV model. | `satellite-api.open-meteo.com/v1/archive?...&tilt=70&azimuth=0` |
+
+Licence: CC-BY-4.0. Attribute it. Limits: <10k calls/day, 5k/hour, 600/min.
+
+**Traps:**
+
+- **Nothing at 2 km resolution reaches Portugal.** ICON-D2 covers Germany, Switzerland and Austria.
+  Prora therefore gets a materially sharper forecast than Castelo Branco, and reporting forecast
+  skill across the plots without stating this compares a 2 km model against a 7 km one.
+- **Archive and forecast use different soil depth bins.** Archive (ERA5-Land) 0-7 / 7-28 / 28-100 cm;
+  ICON forecast 0 / 6 / 18 / 54 cm. You cannot concatenate them without an explicit mapping step,
+  and the exact forecast bins depend on which ICON model you asked for, so pin the model in metadata.
+- **Reference evapotranspiration is not one quantity.** Different services compute it by different
+  formulas. Never mix two providers' ET in one series.
+
+## Both plots: PVGIS (EU JRC)
+
+One-off system sizing and optimum tilt for the exact coordinates, at each plot separately. A design
+tool, not a forecasting tool. `re.jrc.ec.europa.eu/api/v5_3/PVcalc?...&optimalangles=1`
+
+The panel tilts in `config.py` are currently a latitude+15 heuristic, **not** PVGIS output. Replacing
+them is milestone M14 and the numbers should change.
+
+## Applies to every station series
+
+Station records are **unsuitable for trend analysis** (relocations, instrument changes). Fine
+operationally, wrong for climate trending. This is true of DWD and IPMA alike.

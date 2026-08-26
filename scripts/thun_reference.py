@@ -17,6 +17,7 @@ Two API facts most online examples get wrong:
 """
 
 import collections
+
 import numpy as np
 from skyfield.api import load, load_constellation_map
 

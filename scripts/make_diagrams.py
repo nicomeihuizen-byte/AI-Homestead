@@ -370,7 +370,8 @@ def fig_power():
     W, H = 900, 360
     p = [head(W, H, "Daily energy budget: Pi versus Pico")]
     p.append(txt(32, 44, "Why the field node is a Pico W, not a Pi", 19, INK, "bold"))
-    p.append(txt(32, 68, "Energy consumed per day, and the December panel needed to replace it in the Dutch winter.",
+    p.append(txt(32, 68, "Energy consumed per day, and the December panel needed to replace it at Prora, "
+                 "the plot that sizes the hardware.",
                  13, INK2))
 
     data = [
@@ -398,31 +399,41 @@ def fig_power():
 
 
 # ===========================================================================
-# 6. Dutch winter irradiance -- the constraint behind everything
+# 6. Winter sun at the two plots -- the constraint behind everything
 # ===========================================================================
-def fig_irradiance():
-    W, H = 900, 300
-    p = [head(W, H, "De Bilt irradiance, June versus December")]
+def fig_winter_sun():
+    W, H = 900, 340
+    p = [head(W, H, "Winter sun at the two plots")]
     p.append(txt(32, 44, "The constraint behind every hardware decision", 19, INK, "bold"))
-    p.append(txt(32, 68, "24-hour mean solar irradiance at De Bilt, 1991–2020 normals (KNMI).", 13, INK2))
+    p.append(txt(32, 68, "Sun at solar noon on the winter solstice, and hours of daylight. "
+                         "Geometry, not measurements, so these are exact.", 13, INK2))
 
-    for i, (lab, val, col, hh) in enumerate([("June", 200, ROOT, 120), ("December", 20, FLOWER, 12)]):
-        x = 90 + i * 220
-        p.append(rect(x, 236 - hh, 96, hh, col, rx=4))
-        p.append(txt(x + 48, 226 - hh, f"{val}", 26, INK, "bold", "middle"))
-        p.append(txt(x + 48, 258, lab, 12.5, INK2, "normal", "middle"))
-    p.append(txt(90, 278, "W/m², 24-hour mean", 11, INK3))
-    p.append(line(80, 236, 400, 236, EDGE, 1))
+    sites = [("Prora", "54.39 N \u00b7 summer plot", 12.2, 7.0, FLOWER),
+             ("Castelo Branco", "39.82 N \u00b7 winter plot", 26.7, 9.2, ROOT)]
+    R = 100
+    for i, (name, sub, elev, hours, col) in enumerate(sites):
+        cx, cy = 120 + i * 220, 262
+        p.append(line(cx - 16, cy, cx + R + 20, cy, EDGE, 1))          # horizon
+        p.append(path(arc_wedge(cx, cy, R, R, 0, 90), stroke=GRID, sw=1))  # zenith reference
+        sx, sy = polar(cx, cy, R, 90 - elev)                            # the sun, at true elevation
+        p.append(path(f"M{cx:.1f},{cy:.1f} L{sx:.1f},{sy:.1f}", stroke=col, sw=2.5))
+        p.append(circle(sx, sy, 8, fill=col))
+        p.append(txt(sx + 15, sy + 5, f"{elev:.1f}\u00b0", 15, INK, "bold", font=MONO))
+        p.append(circle(cx, cy, 3, fill=INK))
+        p.append(txt(cx - 16, cy - R - 14, f"{hours:.1f} h of daylight", 12.5, INK2, "bold", font=MONO))
+        p.append(txt(cx - 16, cy + 26, name, 14, INK, "bold"))
+        p.append(txt(cx - 16, cy + 44, sub, 11.5, INK3))
 
-    p.append(rect(452, 96, W - 484, 168, CARD, rx=8))
-    p.append(txt(474, 126, "A factor of ten, not a factor of two.", 14, INK, "bold"))
-    p.append(txt(474, 152, "≈ 4.8 peak-sun-hours in June against ≈ 0.5 in December.", 12, INK2))
-    p.append(txt(474, 174, "And that 20 W/m² is a monthly mean. NL routinely delivers", 12, INK2))
-    p.append(txt(474, 192, "runs of 5–10 consecutive overcast days at 0.05–0.15 PSH,", 12, INK2))
-    p.append(txt(474, 210, "effectively no harvest at all.", 12, INK2))
-    p.append(txt(474, 238, "Size the panel for the mean.", 12, INK, "bold"))
-    p.append(txt(474, 256, "Size the battery for the dark run.", 12, INK, "bold"))
-    save("dutch-irradiance.svg", p)
+    p.append(rect(500, 96, W - 532, 186, CARD, rx=8))
+    p.append(txt(522, 126, "Prora sizes the hardware.", 14, INK, "bold"))
+    p.append(txt(522, 152, "Seven hours of daylight against nine, and a sun that", 12, INK2))
+    p.append(txt(522, 170, "peaks less than halfway as high. Low sun is not a", 12, INK2))
+    p.append(txt(522, 188, "small correction: it is most of the loss, because the", 12, INK2))
+    p.append(txt(522, 206, "beam spreads over more ground and more atmosphere.", 12, INK2))
+    p.append(txt(522, 234, "The node is one design, driven between both plots,", 12, INK, "bold"))
+    p.append(txt(522, 252, "so it gets built for the worse case.", 12, INK, "bold"))
+    p.append(txt(522, 272, "Castelo Branco does not get a vote.", 11.5, INK3, style="italic"))
+    save("winter-sun.svg", p)
 
 
 # ===========================================================================
@@ -511,7 +522,7 @@ def fig_arch():
     p.append(txt(422, 146, "oneacre · Python 3.11+", 14, INK, "bold"))
 
     boxes = [
-        (422, 166, "ingest/", "ble_client · knmi · openmeteo · pvgis", FLOWER),
+        (422, 166, "ingest/", "ble_client · dwd · ipma · openmeteo · pvgis", FLOWER),
         (422, 232, "store/", "SQLite: raw stays raw, calibration applies on read", INK3),
         (422, 298, "biodynamic/  ·  solar/", "skyfield day-type  ·  LSTM PV forecast", ROOT),
         (422, 364, "scheduler/", "local LLM proposes → Python constraints dispose", LEAF),
@@ -627,7 +638,7 @@ def fig_birdbox():
     p.append(txt(CX, y + 52, "The air gap between the two boxes buffers thermal swings.", 11, INK2))
 
     p.append(txt(32, H - 20, "Not to scale. Sensor height: WMO convention is 1.25–2 m for comparability "
-                             "with KNMI; lower measures plant microclimate. Record which you chose.",
+                             "with the reference station; lower measures plant microclimate. Record which you chose.",
                  10.5, INK3))
     save("birdbox-build.svg", p)
 
@@ -679,8 +690,8 @@ def fig_roadmap():
         y += 32
 
     p.append(line(32, 478, W - 32, 478, EDGE, 1))
-    p.append(txt(32, 502, "Deploy before the weather turns; the first Dutch winter is the hard test, and it is the "
-                          "whole point of the exercise.", 12, INK2))
+    p.append(txt(32, 502, "Deploy before the weather turns; the first Baltic winter at Prora is the hard test, and it "
+                          "is the whole point of the exercise.", 12, INK2))
     save("roadmap.svg", p)
 
 
@@ -690,7 +701,7 @@ if __name__ == "__main__":
     fig_sidereal()
     fig_cycles()
     fig_power()
-    fig_irradiance()
+    fig_winter_sun()
     fig_link()
     fig_arch()
     fig_birdbox()
