@@ -1,5 +1,5 @@
 {
-  "_note": "Reference figures your biodynamic engine should reproduce. These are astronomical facts computed from a public-domain ephemeris, not calendar data — safe to commit, unlike data/fixtures/thun_validation.json.",
+  "_note": "Reference figures your biodynamic engine should reproduce. These are astronomical facts computed from a public-domain ephemeris, not calendar data, safe to commit, unlike data/fixtures/thun_validation.json.",
   "_how": "See scripts/thun_reference.py. If your implementation disagrees by more than a rounding error, suspect tropical-vs-sidereal before anything else.",
   "computed_with": "skyfield 1.55, de421.bsp, IAU/Delporte boundaries via load_constellation_map",
   "window": "2026-01-01 to 2036-01-01, 30-minute steps",

@@ -20,10 +20,10 @@ data/calibration/
 *.db
 *.parquet
 
-# Ephemeris kernels — pinned locally, too big for git
+# Ephemeris kernels: pinned locally, too big for git
 *.bsp
 
-# Copyrighted validation fixture — hand-keyed from a purchased printed edition.
+# Copyrighted validation fixture: hand-keyed from a purchased printed edition.
 # EU sui generis database right. Never commit this.
 data/fixtures/thun_validation.json
 

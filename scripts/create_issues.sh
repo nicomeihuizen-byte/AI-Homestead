@@ -76,7 +76,7 @@ issue "M11 Enclosure, vent, shield, deployment" \
   "IP66 box INSIDE the birdbox. ePTFE vent + desiccant + conformal coat + underside glands + drip loops. ASA/PETG radiation shield on a short I2C tail.
 Done when: 14 consecutive days outdoors, zero gaps, battery recovering on sunny days." "phase-3"
 
-issue "M12 KNMI ingester (station 260, 1901->)" \
+issue "M12 DWD ingester (Arkona 00183, 1947->)" \
   "Watch the integer scaling (0.1 C, 0.1 mm, J/cm2) and the -1 = '<0.05' convention.
 Done when: backfill completes with a gap report." "phase-5"
 
@@ -101,7 +101,7 @@ issue "M17 Validate against a purchased printed edition" \
 Done when: mismatches cluster on Ophiuchus / node-window / transition-times. Scattered mismatches = a real bug, almost certainly tropical-vs-sidereal." "phase-6"
 
 issue "M18 Calibration curves + uncertainty doc" \
-  "Oven-dried jars per probe; temperature cross-sensitivity regressed out; cross-check air temp and rain against De Bilt.
+  "Oven-dried jars per probe; temperature cross-sensitivity regressed out; cross-check air temp and rain against each plot's reference station.
 Done when: calibration.apply() works and docs/UNCERTAINTY.md has defensible error bars." "phase-4"
 
 issue "M19 Solar baselines (persistence, clear-sky)" \

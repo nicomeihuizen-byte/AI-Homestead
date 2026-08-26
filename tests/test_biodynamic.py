@@ -5,7 +5,7 @@ They encode the three things most likely to be wrong.
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="Phase 6 — implement src/oneacre/biodynamic first")
+pytestmark = pytest.mark.skip(reason="Phase 6: implement src/oneacre/biodynamic first")
 
 
 def test_uses_sidereal_not_tropical():
@@ -20,7 +20,7 @@ def test_ophiuchus_is_flagged_not_hidden():
 
 
 def test_out_of_zodiac_returns_none():
-    """Moon strays into Ori/Cet/Aur/Sex. Return None and log — never crash, never default."""
+    """Moon strays into Ori/Cet/Aur/Sex. Return None and log; never crash, never default."""
 
 
 def test_ascending_is_declination_not_phase():

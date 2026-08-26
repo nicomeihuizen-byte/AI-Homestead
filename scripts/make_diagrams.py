@@ -146,7 +146,7 @@ def fig_wheel():
     p = [head(W, H, "The Moon's real path through the constellations, by Thun day-type")]
     p.append(txt(32, 44, "One sidereal month, as the sky actually is", 19, INK, "bold"))
     p.append(txt(32, 68,
-                 "Time the Moon spends in each constellation — real IAU boundaries, not equal 30° divisions.",
+                 "Time the Moon spends in each constellation: real IAU boundaries, not equal 30° divisions.",
                  13, INK2))
 
     cx, cy, r0, r1 = 300, 380, 96, 196
@@ -178,9 +178,9 @@ def fig_wheel():
     # -- extremes, stated as a stat row rather than leader lines into a busy ring
     p.append(rect(72, 626, 456, 40, CARD, rx=8))
     p.append(rect(88, 638, 12, 16, ROOT, rx=3))
-    p.append(txt(108, 651, "longest — Virgo, 3.30 d", 12, INK, "bold"))
+    p.append(txt(108, 651, "longest: Virgo, 3.30 d", 12, INK, "bold"))
     p.append(rect(292, 638, 12, 16, LEAF, rx=3))
-    p.append(txt(312, 651, "shortest — Scorpius, 0.68 d", 12, INK, "bold"))
+    p.append(txt(312, 651, "shortest: Scorpius, 0.68 d", 12, INK, "bold"))
 
     # -- legend / explanation column
     lx = 582
@@ -203,16 +203,16 @@ def fig_wheel():
 
     p.append(rect(lx - 18, 292, 360, 96, CARD, rx=8))
     p.append(rect(lx, 312, 12, 12, OPH, rx=3))
-    p.append(txt(lx + 20, 322, "Ophiuchus — 1.27 d/month", 12.5, INK, "bold"))
+    p.append(txt(lx + 20, 322, "Ophiuchus: 1.27 d/month", 12.5, INK, "bold"))
     p.append(txt(lx, 342, "On the ecliptic, but not in Thun's 12-fold zodiac.", 11.5, INK2))
     p.append(txt(lx, 358, "The printed calendars extend the Scorpio/water", 11.5, INK2))
-    p.append(txt(lx, 374, "region across it. Fold it — but flag it.", 11.5, INK2))
+    p.append(txt(lx, 374, "region across it. Fold it, but flag it.", 11.5, INK2))
 
     p.append(rect(lx - 18, 406, 360, 96, CARD, rx=8))
     p.append(rect(lx, 426, 12, 12, OUTZ, rx=3))
-    p.append(txt(lx + 20, 436, "Orion, Sextans, Cetus — 0.98 d/month", 12.5, INK, "bold"))
+    p.append(txt(lx + 20, 436, "Orion, Sextans, Cetus: 0.98 d/month", 12.5, INK, "bold"))
     p.append(txt(lx, 456, "The Moon's orbit is inclined ~5.1°, so it strays", 11.5, INK2))
-    p.append(txt(lx, 472, "outside the zodiac entirely. Return None and log —", 11.5, INK2))
+    p.append(txt(lx, 472, "outside the zodiac entirely. Return None and log,", 11.5, INK2))
     p.append(txt(lx, 488, "never crash, never silently default.", 11.5, INK2))
 
     p.append(line(lx - 18, 522, lx + 342, 522, EDGE, 1))
@@ -277,14 +277,14 @@ def fig_sidereal():
     signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo"]
     seg = w / 6
     # tropical band: equal 30-degree signs
-    p.append(txt(32, 116, "Tropical signs — equal 30° each", 12, INK2, "bold"))
+    p.append(txt(32, 116, "Tropical signs: equal 30° each", 12, INK2, "bold"))
     for i, s in enumerate(signs):
         p.append(rect(x0 + i * seg + 1, 128, seg - 2, 34, CARD, rx=4, stroke=EDGE))
         p.append(txt(x0 + i * seg + seg / 2, 150, s, 12, INK2, "normal", "middle"))
 
     # sidereal band: the real constellations sit ~24 degrees EARLIER than the
     # signs named after them, so on this axis they are pushed to the right.
-    p.append(txt(32, 200, "Real constellations — unequal widths, ~24° behind", 12, INK, "bold"))
+    p.append(txt(32, 200, "Real constellations: unequal widths, ~24° behind", 12, INK, "bold"))
     shift = seg * 24 / 30
     cons = [("Pisces", None, LEAF), ("Aries", 24.7, FRUIT), ("Taurus", 36.7, ROOT),
             ("Gemini", 27.9, FLOWER), ("Cancer", 20.1, LEAF), ("Leo", 35.8, FRUIT),
@@ -330,8 +330,8 @@ def fig_cycles():
     def X(d): return x0 + w * d / days
 
     for cy, per, col, lab, sub in [
-        (170, 27.32, FLOWER, "Ascending / descending", "declination — 27.32 d, the tropical month"),
-        (280, 29.53, ROOT, "Waxing / waning", "phase — 29.53 d, the synodic month"),
+        (170, 27.32, FLOWER, "Ascending / descending", "declination: 27.32 d, the tropical month"),
+        (280, 29.53, ROOT, "Waxing / waning", "phase: 29.53 d, the synodic month"),
     ]:
         p.append(line(x0, cy, x0 + w, cy, GRID, 1))
         d = f"M{X(0):.1f},{cy:.1f}"
@@ -370,13 +370,14 @@ def fig_power():
     W, H = 900, 360
     p = [head(W, H, "Daily energy budget: Pi versus Pico")]
     p.append(txt(32, 44, "Why the field node is a Pico W, not a Pi", 19, INK, "bold"))
-    p.append(txt(32, 68, "Energy consumed per day, and the December panel needed to replace it in the Dutch winter.",
+    p.append(txt(32, 68, "Energy consumed per day, and the December panel needed to replace it at Prora, "
+                 "the plot that sizes the hardware.",
                  13, INK2))
 
     data = [
         ("Pi Zero 2 W, always on", 14.4, "~48 W panel · 100 Wh battery", FRUIT),
         ("Pi Zero 2 W, duty-cycled", 2.4, "~8 W panel · 17 Wh battery", ROOT),
-        ("Pico W, duty-cycled", 0.16, "~1 W by arithmetic — buy 5–10 W", LEAF),
+        ("Pico W, duty-cycled", 0.16, "~1 W by arithmetic, buy 5–10 W", LEAF),
     ]
     x0, y0, bw, gap = 230, 108, 420, 60
     mx = 15.0
@@ -391,38 +392,48 @@ def fig_power():
 
     p.append(line(32, 300, W - 32, 300, EDGE, 1))
     p.append(txt(32, 324, "A factor of ~90 between the top and bottom bar. "
-                          "Measure your own dormant current before sizing anything — published Pico figures", 12, INK2))
+                          "Measure your own dormant current before sizing anything; published Pico figures", 12, INK2))
     p.append(txt(32, 342, "disagree by ~30×, which changes the panel by several times but not the conclusion.",
                  12, INK2))
     save("power-budget.svg", p)
 
 
 # ===========================================================================
-# 6. Dutch winter irradiance -- the constraint behind everything
+# 6. Winter sun at the two plots -- the constraint behind everything
 # ===========================================================================
-def fig_irradiance():
-    W, H = 900, 300
-    p = [head(W, H, "De Bilt irradiance, June versus December")]
+def fig_winter_sun():
+    W, H = 900, 340
+    p = [head(W, H, "Winter sun at the two plots")]
     p.append(txt(32, 44, "The constraint behind every hardware decision", 19, INK, "bold"))
-    p.append(txt(32, 68, "24-hour mean solar irradiance at De Bilt, 1991–2020 normals (KNMI).", 13, INK2))
+    p.append(txt(32, 68, "Sun at solar noon on the winter solstice, and hours of daylight. "
+                         "Geometry, not measurements, so these are exact.", 13, INK2))
 
-    for i, (lab, val, col, hh) in enumerate([("June", 200, ROOT, 120), ("December", 20, FLOWER, 12)]):
-        x = 90 + i * 220
-        p.append(rect(x, 236 - hh, 96, hh, col, rx=4))
-        p.append(txt(x + 48, 226 - hh, f"{val}", 26, INK, "bold", "middle"))
-        p.append(txt(x + 48, 258, lab, 12.5, INK2, "normal", "middle"))
-    p.append(txt(90, 278, "W/m², 24-hour mean", 11, INK3))
-    p.append(line(80, 236, 400, 236, EDGE, 1))
+    sites = [("Prora", "54.39 N \u00b7 summer plot", 12.2, 7.0, FLOWER),
+             ("Castelo Branco", "39.82 N \u00b7 winter plot", 26.7, 9.2, ROOT)]
+    R = 100
+    for i, (name, sub, elev, hours, col) in enumerate(sites):
+        cx, cy = 120 + i * 220, 262
+        p.append(line(cx - 16, cy, cx + R + 20, cy, EDGE, 1))          # horizon
+        p.append(path(arc_wedge(cx, cy, R, R, 0, 90), stroke=GRID, sw=1))  # zenith reference
+        sx, sy = polar(cx, cy, R, 90 - elev)                            # the sun, at true elevation
+        p.append(path(f"M{cx:.1f},{cy:.1f} L{sx:.1f},{sy:.1f}", stroke=col, sw=2.5))
+        p.append(circle(sx, sy, 8, fill=col))
+        p.append(txt(sx + 15, sy + 5, f"{elev:.1f}\u00b0", 15, INK, "bold", font=MONO))
+        p.append(circle(cx, cy, 3, fill=INK))
+        p.append(txt(cx - 16, cy - R - 14, f"{hours:.1f} h of daylight", 12.5, INK2, "bold", font=MONO))
+        p.append(txt(cx - 16, cy + 26, name, 14, INK, "bold"))
+        p.append(txt(cx - 16, cy + 44, sub, 11.5, INK3))
 
-    p.append(rect(452, 96, W - 484, 168, CARD, rx=8))
-    p.append(txt(474, 126, "A factor of ten — not a factor of two.", 14, INK, "bold"))
-    p.append(txt(474, 152, "≈ 4.8 peak-sun-hours in June against ≈ 0.5 in December.", 12, INK2))
-    p.append(txt(474, 174, "And that 20 W/m² is a monthly mean. NL routinely delivers", 12, INK2))
-    p.append(txt(474, 192, "runs of 5–10 consecutive overcast days at 0.05–0.15 PSH —", 12, INK2))
-    p.append(txt(474, 210, "effectively no harvest at all.", 12, INK2))
-    p.append(txt(474, 238, "Size the panel for the mean.", 12, INK, "bold"))
-    p.append(txt(474, 256, "Size the battery for the dark run.", 12, INK, "bold"))
-    save("dutch-irradiance.svg", p)
+    p.append(rect(500, 96, W - 532, 186, CARD, rx=8))
+    p.append(txt(522, 126, "Prora sizes the hardware.", 14, INK, "bold"))
+    p.append(txt(522, 152, "Seven hours of daylight against nine, and a sun that", 12, INK2))
+    p.append(txt(522, 170, "peaks less than halfway as high. Low sun is not a", 12, INK2))
+    p.append(txt(522, 188, "small correction: it is most of the loss, because the", 12, INK2))
+    p.append(txt(522, 206, "beam spreads over more ground and more atmosphere.", 12, INK2))
+    p.append(txt(522, 234, "The node is one design, driven between both plots,", 12, INK, "bold"))
+    p.append(txt(522, 252, "so it gets built for the worse case.", 12, INK, "bold"))
+    p.append(txt(522, 272, "Castelo Branco does not get a vote.", 11.5, INK3, style="italic"))
+    save("winter-sun.svg", p)
 
 
 # ===========================================================================
@@ -436,7 +447,7 @@ def fig_link():
 
     x0, w, y = 60, 780, 108
     zones = [(0, 20, LEAF, "BLE", "0–20 m, clear line of sight",
-              "the simplest thing that works — no extra radios"),
+              "the simplest thing that works, no extra radios"),
              (20, 50, ROOT, "marginal", "20–50 m, some vegetation",
               "works in July, drops out in a wet November"),
              (50, 120, FRUIT, "LoRa SX1262", "50 m and beyond",
@@ -460,7 +471,7 @@ def fig_link():
         ly += 24
 
     p.append(line(32, 292, W - 32, 292, EDGE, 1))
-    p.append(txt(32, 316, "BLE's limit here is not throughput — your payload is ~10 bits/second against a "
+    p.append(txt(32, 316, "BLE's limit here is not throughput; your payload is ~10 bits/second against a "
                           "235 kbps floor. It is that a dropped link", 12, INK2))
     p.append(txt(32, 334, "fails silently, with no retry, during exactly the weather worth observing.", 12, INK2))
     save("link-decision.svg", p)
@@ -480,12 +491,12 @@ def fig_arch():
     p.append(rect(32, 96, 300, 386, CARD, rx=10))
     p.append(txt(52, 124, "FIELD", 11.5, INK3, "bold"))
     p.append(txt(52, 146, "Pico 2 W · MicroPython", 14, INK, "bold"))
-    items = ["BME280 — air T / RH / pressure",
-             "DS18B20 ×2 — soil T, 10 & 30 cm",
-             "Capacitive ×2 — soil moisture",
-             "BH1750 — lux (not PAR)",
-             "Tipping gauge — rain",
-             "Anemometer + vane — wind",
+    items = ["BME280: air T / RH / pressure",
+             "DS18B20 ×2: soil T, 10 & 30 cm",
+             "Capacitive ×2: soil moisture",
+             "BH1750: lux (not PAR)",
+             "Tipping gauge: rain",
+             "Anemometer + vane: wind",
              "Battery V / panel V"]
     y = 174
     for it in items:
@@ -511,8 +522,8 @@ def fig_arch():
     p.append(txt(422, 146, "oneacre · Python 3.11+", 14, INK, "bold"))
 
     boxes = [
-        (422, 166, "ingest/", "ble_client · knmi · openmeteo · pvgis", FLOWER),
-        (422, 232, "store/", "SQLite — raw stays raw, calibration applies on read", INK3),
+        (422, 166, "ingest/", "ble_client · dwd · ipma · openmeteo · pvgis", FLOWER),
+        (422, 232, "store/", "SQLite: raw stays raw, calibration applies on read", INK3),
         (422, 298, "biodynamic/  ·  solar/", "skyfield day-type  ·  LSTM PV forecast", ROOT),
         (422, 364, "scheduler/", "local LLM proposes → Python constraints dispose", LEAF),
     ]
@@ -597,8 +608,8 @@ def fig_birdbox():
     CX, CW = 570, 338
     calls = [
         (FLOWER, "ePTFE vent + desiccant, underside",
-         "A sealed box breathes — warm day out, cold night",
-         "in — and pumps itself full of water over weeks."),
+         "A sealed box breathes: warm day out, cold night",
+         "in, and pumps itself full of water over weeks."),
         (ROOT, "Radiation shield in ASA or PETG, never PLA",
          "No shield means you are not measuring air",
          "temperature. PLA fails outdoors within 30 days."),
@@ -627,7 +638,7 @@ def fig_birdbox():
     p.append(txt(CX, y + 52, "The air gap between the two boxes buffers thermal swings.", 11, INK2))
 
     p.append(txt(32, H - 20, "Not to scale. Sensor height: WMO convention is 1.25–2 m for comparability "
-                             "with KNMI; lower measures plant microclimate. Record which you chose.",
+                             "with the reference station; lower measures plant microclimate. Record which you chose.",
                  10.5, INK3))
     save("birdbox-build.svg", p)
 
@@ -639,7 +650,7 @@ def fig_roadmap():
     W, H = 940, 530
     p = [head(W, H, "Phase roadmap")]
     p.append(txt(32, 44, "Roadmap", 19, INK, "bold"))
-    p.append(txt(32, 68, "Phases 0–3 are sequential. Phase 5 needs no hardware — start it on the first rainy evening.",
+    p.append(txt(32, 68, "Phases 0–3 are sequential. Phase 5 needs no hardware; start it on the first rainy evening.",
                  13, INK2))
 
     # legend -- colour groups the kind of work, and follows the phase, not its order
@@ -679,8 +690,8 @@ def fig_roadmap():
         y += 32
 
     p.append(line(32, 478, W - 32, 478, EDGE, 1))
-    p.append(txt(32, 502, "Deploy before the weather turns — the first Dutch winter is the hard test, and it is the "
-                          "whole point of the exercise.", 12, INK2))
+    p.append(txt(32, 502, "Deploy before the weather turns; the first Baltic winter at Prora is the hard test, and it "
+                          "is the whole point of the exercise.", 12, INK2))
     save("roadmap.svg", p)
 
 
@@ -690,7 +701,7 @@ if __name__ == "__main__":
     fig_sidereal()
     fig_cycles()
     fig_power()
-    fig_irradiance()
+    fig_winter_sun()
     fig_link()
     fig_arch()
     fig_birdbox()

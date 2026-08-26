@@ -1,4 +1,4 @@
-"""BLE peripheral — Nordic UART Service, via `aioble`.
+"""BLE peripheral: Nordic UART Service, via `aioble`.
 
 NUS because every phone BLE app already speaks it, which makes field debugging trivial: walk up
 to the box with your phone and read live values.

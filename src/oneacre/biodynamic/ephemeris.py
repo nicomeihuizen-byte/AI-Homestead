@@ -1,6 +1,6 @@
 """Skyfield wrapper. MIT-licensed; JPL kernels are public domain.
 
-Kernel: de440s.bsp (32 MB, 1849-2150) — covers any historical validation back to 1963.
+Kernel: de440s.bsp (32 MB, 1849-2150), covers any historical validation back to 1963.
 PIN IT LOCALLY. Do not assume a runtime download works; this is an off-grid project.
 (For lunar work DE440 is MORE accurate than DE441: it includes the Moon's liquid core.)
 
@@ -18,7 +18,7 @@ What to compute where:
                           This is a declination cycle, NOT waxing/waning. Confusing the two
                           is the second most common bug in this calendar.
   - perigee/apogee     : find_minima/find_maxima over Earth-Moon DISTANCE,
-                          rough_period ~= 27.55 d (anomalistic month — a DIFFERENT constant).
+                          rough_period ~= 27.55 d (anomalistic month, a DIFFERENT constant).
                           Set step_days well below the period or you will skip extrema.
   - nodes              : almanac.moon_nodes(eph) + find_discrete
   - eclipses           : almanac.lunar_eclipses(...)
