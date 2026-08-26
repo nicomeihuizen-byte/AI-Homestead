@@ -31,6 +31,7 @@ Project write-up: **[meihuizen.ai/projects/off-grid-ai-homestead](https://www.me
 · Step-by-step plan: **[`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md)**
 · Status: **Phase 0**: nothing is built yet, the plan is.
 
+
 <img src="docs/img/architecture.svg" alt="System architecture: a Pico W field node sending readings over BLE or LoRa to a Python stack on a laptop that ingests, stores, models and schedules" width="100%">
 
 ---
