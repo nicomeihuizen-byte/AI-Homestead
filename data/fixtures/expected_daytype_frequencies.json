@@ -1,0 +1,24 @@
+{
+  "_note": "Reference figures your biodynamic engine should reproduce. These are astronomical facts computed from a public-domain ephemeris, not calendar data — safe to commit, unlike data/fixtures/thun_validation.json.",
+  "_how": "See scripts/thun_reference.py. If your implementation disagrees by more than a rounding error, suspect tropical-vs-sidereal before anything else.",
+  "computed_with": "skyfield 1.55, de421.bsp, IAU/Delporte boundaries via load_constellation_map",
+  "window": "2026-01-01 to 2036-01-01, 30-minute steps",
+  "time_fraction_by_constellation": {
+    "Vir": 0.120784, "Psc": 0.120237, "Sgr": 0.095570, "Tau": 0.094303,
+    "Leo": 0.081057, "Aqr": 0.073795, "Gem": 0.068410, "Lib": 0.063732,
+    "Ari": 0.062049, "Cnc": 0.058826, "Cap": 0.053886, "Oph": 0.046384,
+    "Sco": 0.024941, "Sex": 0.019008, "Ori": 0.011198, "Cet": 0.005305,
+    "Aur": 0.000496, "Crv": 0.000017
+  },
+  "days_per_sidereal_month_by_organ_ophiuchus_folded_to_leaf": {
+    "root": 7.349, "leaf": 6.841, "flower": 5.627, "fruit": 6.521
+  },
+  "ophiuchus_days_per_sidereal_month": 1.267,
+  "non_zodiacal_fraction": 0.036025,
+  "non_zodiacal_constellations": ["Aur", "Cet", "Crv", "Ori", "Sex"],
+  "calendar_day_counts_2027": {
+    "root": 107, "fruit": 97, "leaf": 82, "leaf_from_ophiuchus": 12, "flower": 67,
+    "_rule": "majority of the local day",
+    "_check": "root/flower = 107/67 = 1.60"
+  }
+}

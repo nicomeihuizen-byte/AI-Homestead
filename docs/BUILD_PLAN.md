@@ -259,7 +259,7 @@ Thun's radish trials began as an attempt to *test* Rulni's claims. Say "Thun cal
 ### Four things that make this a real computation, not a lookup table
 
 1. **Sidereal, not tropical.** The calendar tracks the Moon against the actual star constellations. Tropical astrological signs are currently offset ~24–25° — roughly a whole sign — so a tropical implementation is **systematically wrong by about two days, every day**. This is the most common bug in hobby implementations.
-2. **Real IAU constellation boundaries, unequal in length.** Libra spans as little as ~18°, Virgo ~46°. Thun uses the real boundaries. Consequence: **the day types are structurally unbalanced** — roughly 9 root days against 5–6 flower days per sidereal month. Kollerstrom's own critique: *"Root days (Earth) were assigned over 50 per cent more of the month than the Flower days (Air)."* Any statistical test **must** account for this unequal exposure or you will mistake "root days are more numerous" for "root days work better".
+2. **Real IAU constellation boundaries, unequal in length.** I checked this against the ephemeris rather than trusting the secondhand figures, and the usual quote ("Libra ~18°") is wrong — **Scorpius is the short one**. Measured as the fraction of a sidereal month the Moon actually spends in each constellation: Virgo 3.30 d, Pisces 3.29 d, down to Scorpius **0.68 d** — a 4.8× spread. Consequence: **the day types are structurally unbalanced** — **7.35 root days against 5.63 flower days** per sidereal month, and on a majority-of-day basis over 2027, **107 root days against 67 flower days: 60% more**. (That last figure does vindicate Kollerstrom's critique — *"Root days (Earth) were assigned over 50 per cent more of the month than the Flower days (Air)"* — even though his stated constellation widths do not.) Any statistical test **must** account for this unequal exposure, or you will mistake "root days are more numerous" for "root days work better". Reference figures: `data/fixtures/expected_daytype_frequencies.json`, reproducible with `scripts/thun_reference.py`.
 3. **Ascending/descending is declination, not phase.** A ~27.3-day tropical-month cycle of lunar declination, completely independent of the 29.53-day waxing/waning cycle. Ascending = sap-rising, favour above-ground work; descending = the "planting period", favour transplanting and root work. Confusing this with waxing/waning is the second most common bug.
 4. **Blanking rules.** Node crossings (both), eclipses, and — in the Thun tradition — perigee are marked unfavourable, with a window of hours either side.
 
@@ -298,6 +298,8 @@ A null result, honestly obtained and published, is a genuinely valuable output o
 ---
 
 ## 6. Repository layout
+
+_The fully annotated tree, with every stub file and what it is for, is in the [README](../README.md#repository-layout)._
 
 ```
 one-acre/

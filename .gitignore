@@ -30,3 +30,7 @@ data/fixtures/thun_validation.json
 # Local model weights
 models/
 *.gguf
+
+# Windows
+desktop.ini
+Thumbs.db
