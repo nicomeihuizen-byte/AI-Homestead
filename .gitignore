@@ -1,0 +1,32 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Data: raw stays local
+data/raw/
+data/processed/
+data/briefs/
+data/calibration/
+*.sqlite
+*.sqlite3
+*.db
+*.parquet
+
+# Ephemeris kernels — pinned locally, too big for git
+*.bsp
+
+# Copyrighted validation fixture — hand-keyed from a purchased printed edition.
+# EU sui generis database right. Never commit this.
+data/fixtures/thun_validation.json
+
+# Local model weights
+models/
+*.gguf
