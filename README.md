@@ -4,7 +4,14 @@ Off-grid, AI-driven farming on two plots **2256 km apart**: **Prora** on the Ger
 cultivated through summer, **Castelo Branco** in central Portugal through winter. A solar-powered
 field node measures soil and weather; a laptop-side Python stack merges that with decades of public
 station and reanalysis records, forecasts its own solar budget, computes the Thun biodynamic
-day-type from first principles, and asks a **local** LLM to turn all of it into a daily plan.
+day-type from first principles, and hands the lot to a **local** LLM as the day's plan: which crop to
+sow, in which bed, in which window, with the day-type logged beside it.
+
+**What it is aimed at: yield per square metre.** The most food off the smallest piece of ground. A
+small plot worked well beats a large one worked badly, and the reason to put a model in the loop is
+that it holds more variables at once than a person planning on a Sunday afternoon. Whether it
+actually beats a competent gardener with a notebook is an open question, and this repo is built to
+answer it rather than assume it.
 
 | | Prora | Castelo Branco |
 |---|---|---|
@@ -361,6 +368,14 @@ than it is because it was more fun to build.**
 
 A local model (Ollama, Qwen/Llama-class instruct) sized to the laptop. Keeps the off-grid claim honest
 and costs nothing per call.
+
+**What it is actually choosing.** Not "water bed three". The decision worth automating is what goes
+in the ground and when: this crop or that one, this week or in three, read off soil temperature at 10
+and 30 cm, the moisture deficit, degree-days banked so far, the next frost in the forecast, the solar
+budget available to spend, and what that bed grew last season. The day-type enters the same context
+block **labelled as a covariate under test, not a rule**, so it can colour a choice and never
+overrule an agronomic one. Two plots in two climates widen that choice rather than doubling the work,
+because something is always in season somewhere.
 
 **The LLM never computes.** Every number (degree-days, soil moisture deficit, frost risk, day-type,
 PV budget) is computed in tested Python and passed in as a structured context block. The model's only
