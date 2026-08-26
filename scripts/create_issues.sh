@@ -1,8 +1,36 @@
 #!/usr/bin/env bash
 # Create the milestone issues on GitHub. Requires `gh auth login` and the repo pushed.
+#
+# Safe to re-run: labels are created with --force (create-or-update), but issues
+# are NOT deduplicated -- running this twice files 25 duplicates. Check first.
 set -euo pipefail
 
-issue() { gh issue create --title "$1" --body "$2" --label "${3:-}"; }
+gh auth status >/dev/null 2>&1 || { echo "Not logged in. Run: gh auth login"; exit 1; }
+gh repo view --json name >/dev/null 2>&1 || { echo "No GitHub repo for this directory. Is 'origin' set?"; exit 1; }
+
+if [ "$(gh issue list --limit 1 --json number --jq 'length')" != "0" ]; then
+  echo "This repo already has issues. Filing 25 more would duplicate them."
+  read -r -p "Continue anyway? [y/N] " reply
+  [ "$reply" = "y" ] || [ "$reply" = "Y" ] || exit 1
+fi
+
+# Labels must exist before an issue can carry them -- a fresh repo has none of
+# these, and gh issue create fails outright on an unknown label.
+echo "Creating labels..."
+label() { gh label create "$1" --color "$2" --description "$3" --force >/dev/null; }
+label phase-0 "6f6c66" "Setup: repo, site survey, ADRs"
+label phase-1 "4a3aa7" "Bench node"
+label phase-2 "4a3aa7" "The link"
+label phase-3 "4a3aa7" "Power and deployment"
+label phase-4 "4a3aa7" "Calibration"
+label phase-5 "008300" "Weather and history (no hardware needed)"
+label phase-6 "008300" "Biodynamic engine"
+label phase-7 "eda100" "Solar forecast"
+label phase-8 "e34948" "LLM scheduler"
+label phase-9 "6f6c66" "Vision and anomalies (gated)"
+
+echo "Creating issues..."
+issue() { gh issue create --title "$1" --body "$2" --label "${3:-}" >/dev/null && echo "  + $1"; }
 
 issue "M1 Site survey + transport decision (ADR-0004)" \
   "Measure straight-line node->laptop distance and obstructions. Fill docs/SITE.md. Apply the table in BUILD_PLAN section 1. Write ADR-0004.
@@ -103,4 +131,5 @@ issue "M25 Vision inventory spike" \
   "Gated behind a full season of data. Boring statistics first on the anomaly side.
 Done when: item counts from shelf photos." "phase-9"
 
-echo "Created 25 issues."
+echo
+echo "Done. Review them: gh issue list"
