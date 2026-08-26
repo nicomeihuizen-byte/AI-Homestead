@@ -1,4 +1,4 @@
-"""Smoke test — proves the package imports and the scaffold is wired up."""
+"""Smoke test: proves the package imports and the scaffold is wired up."""
 
 import oneacre
 from oneacre.config import SITE

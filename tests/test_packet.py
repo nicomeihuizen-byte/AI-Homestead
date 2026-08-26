@@ -2,7 +2,7 @@
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="Phase 1 — implement node/link/packet.py first")
+pytestmark = pytest.mark.skip(reason="Phase 1: implement node/link/packet.py first")
 
 
 def test_pack_unpack_roundtrip():

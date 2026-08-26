@@ -1,4 +1,4 @@
-# Pre-registration — the biodynamic day-type analysis
+# Pre-registration: the biodynamic day-type analysis
 
 **Write and freeze this BEFORE the first sowing of spring 2027.** With 4 day-types x 4 organ-types
 x several crops, something will look significant by chance. That is the whole reason this file
@@ -21,20 +21,20 @@ data by a non-neutral author.
 **A null result, honestly obtained and published, is a valid and valuable output of this project.
 Possibly the most valuable one.**
 
-## Design — fill in before sowing
+## Design: fill in before sowing
 
 - Crops and organs:
 - Number of sowing dates per crop per season:
 - Randomisation and blocking scheme:
-- Bed assignment (must be randomised — bed quality is a confound):
+- Bed assignment (must be randomised, bed quality is a confound):
 - Response variable and how it is measured:
 - Weather covariates conditioned on (from Phase 5):
 
-## Analysis plan — fill in before sowing
+## Analysis plan: fill in before sowing
 
 - Model specification:
 - **Weighting for unequal day-type frequency** (roughly 9 root days to 5-6 flower days per
-  sidereal month — this is not optional):
+  sidereal month, this is not optional):
 - Handling of blanked days:
 - Multiple-comparison correction:
 - Pre-specified primary test (exactly one):
@@ -45,7 +45,7 @@ Possibly the most valuable one.**
 Sowing date is perfectly confounded with weather and season. One season's comparison proves
 nothing. This needs many repeated sowings across multiple seasons, randomised and blocked. The
 upside: the Phase 5 weather pipeline gives us exactly the covariates the historical trials
-lacked — which is a genuine advantage over Thun's and Spiess's own designs.
+lacked, which is a genuine advantage over Thun's and Spiess's own designs.
 
 ## Frozen on
 

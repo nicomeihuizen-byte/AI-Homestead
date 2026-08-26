@@ -1,4 +1,4 @@
-"""KNMI script service — De Bilt station 260, daily series from 1901-01-01. No API key.
+"""KNMI script service: De Bilt station 260, daily series from 1901-01-01. No API key.
 
     https://www.daggegevens.knmi.nl/klimatologie/daggegevens
         ?stns=260&vars=ALL&start=YYYYMMDD&end=YYYYMMDD&fmt=json
@@ -10,7 +10,7 @@ TRAPS (each one silently produces wrong numbers):
     They will not agree. Never mix them in one series.
   - KNMI states these series are unsuitable for trend analysis (relocations, instrument changes).
 
-Cache aggressively — these are historical facts and do not change.
+Cache aggressively; these are historical facts and do not change.
 
 TODO Phase 5: fetch(), parse(), to_long_format(), backfill() with a gap report.
 """

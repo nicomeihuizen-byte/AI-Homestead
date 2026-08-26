@@ -1,7 +1,7 @@
 """Thun element/organ mapping over the twelve zodiacal constellations.
 
 SIDEREAL, not tropical. The calendar tracks the Moon against the ACTUAL star constellations.
-Tropical astrological signs are currently offset by ~24-25 degrees — roughly a whole sign — so a
+Tropical astrological signs are currently offset by ~24-25 degrees, roughly a whole sign, so a
 tropical implementation is systematically wrong by about two days, every day. This is the most
 common bug in hobby implementations of this calendar.
 
@@ -31,12 +31,12 @@ ORGAN_OF_ELEMENT = {
 # calendars extend the Scorpio/water region across it.
 #
 # A naive load_constellation_map() implementation WILL disagree with the printed calendar on
-# those days. Fold it into water — but always flag it in the output, and verify against a
+# those days. Fold it into water, but always flag it in the output, and verify against a
 # printed edition. Thun's exact handling is not documented anywhere findable.
 OPHIUCHUS_FOLD = "Sco"
 
 # The Moon's orbit is inclined ~5.1 deg, so it occasionally strays into Orion, Cetus, Auriga,
-# Sextans and others. Return None with a log line — never crash, never silently default.
+# Sextans and others. Return None with a log line; never crash, never silently default.
 # These cases are a useful sanity check that you are using real boundaries and not equal
 # 30-degree divisions.
 

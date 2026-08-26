@@ -1,6 +1,6 @@
 """BLE central using `bleak`. Node = peripheral (NUS), laptop = central.
 
-`bleak` is a GATT client only — it cannot act as a peripheral — so this topology is forced.
+`bleak` is a GATT client only: it cannot act as a peripheral, so this topology is forced.
 Linux needs BlueZ >= 5.55.
 
 TODO Phase 2:

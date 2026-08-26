@@ -5,27 +5,27 @@ Add a new ADR rather than editing an old one; supersede explicitly.
 
 ---
 
-## ADR-0001 — The field node is a Pico W, not a Raspberry Pi
+## ADR-0001: The field node is a Pico W, not a Raspberry Pi
 
 **Status:** accepted (2026-08-26)
 
 **Context.** The project brief said "Raspberry Pi". A Pi Zero 2 W idles at 0.4–0.6 W; even halted it
-draws ~50 mA. De Bilt's 24-hour mean irradiance is ~200 W/m² in June and ~20 W/m² in December — a
+draws ~50 mA. De Bilt's 24-hour mean irradiance is ~200 W/m² in June and ~20 W/m² in December, a
 factor of ten. An always-on Zero 2 W therefore needs roughly a 60 W panel and 100 Wh of battery.
 
 **Decision.** Pico 2 W in the field box. Its VSYS accepts 1.8–5.5 V, so a single LiFePO4 cell feeds
-it directly — no boost stage and therefore no boost-converter quiescent current.
+it directly, no boost stage and therefore no boost-converter quiescent current.
 
 **Consequences.** ~60× smaller power budget (0.08–0.24 Wh/day vs 14.4). No Linux in the field: no
 on-device Python ecosystem, no local filesystem logging beyond a flash ring buffer. A Pi may still
-be used indoors. Node firmware is MicroPython, not CPython — some libraries will not be available.
+be used indoors. Node firmware is MicroPython, not CPython; some libraries will not be available.
 
 **Open:** true dormant current. Published figures disagree by ~30×. Measure before final sizing
 (milestone #9). This changes panel sizing, not this decision.
 
 ---
 
-## ADR-0002 — LLM runs locally
+## ADR-0002: LLM runs locally
 
 **Status:** accepted (2026-08-26)
 
@@ -40,13 +40,13 @@ weight. Zero marginal cost per call. The off-grid claim survives scrutiny.
 
 ---
 
-## ADR-0003 — The LLM never computes
+## ADR-0003: The LLM never computes
 
 **Status:** accepted (2026-08-26)
 
 **Context.** Language models produce confident, plausible, wrong arithmetic on sensor data.
 
-**Decision.** Every number — degree-days, soil moisture deficit, frost risk, PV budget, day-type — is
+**Decision.** Every number (degree-days, soil moisture deficit, frost risk, PV budget, day-type) is
 computed in tested Python and passed in as a structured context block. The model selects,
 prioritises and explains. Output is schema-validated JSON. A deterministic constraint layer runs
 *after* the model and can veto or defer.
@@ -56,9 +56,9 @@ scheduler degrades to "context block + rules" if the model is unavailable, which
 
 ---
 
-## ADR-0004 — Field-to-house transport: TBD in Phase 0
+## ADR-0004: Field-to-house transport, TBD in Phase 0
 
-**Status:** pending — decide after measuring the distance
+**Status:** pending, decide after measuring the distance
 
 **Context.** BLE's limit here is not throughput (payload is ~10 bits/s against a 235 kbps floor) but
 failure mode: a dropped connection fails silently with no retry, losing data during exactly the
@@ -69,12 +69,12 @@ works in July, drops out in a wet November; ≥50 m → LoRa SX1262 point-to-poi
 the decision here.
 
 **Consequences either way.** `ingest/` is the seam: swapping BLE for LoRa touches one module. Keep
-BLE as the walk-up service/debug interface regardless — that role it does excellently and it is
+BLE as the walk-up service/debug interface regardless; that role it does excellently and it is
 nearly free.
 
 ---
 
-## ADR-0005 — Skyfield, not Swiss Ephemeris
+## ADR-0005: Skyfield, not Swiss Ephemeris
 
 **Status:** accepted (2026-08-26)
 
@@ -85,4 +85,4 @@ Ephemeris, which is dual-licensed AGPL/commercial.
 locally, not downloaded at runtime.
 
 **Consequences.** Public repo stays MIT-clean. `bdc` can still be used as a cross-check.
-DE440 is *more* accurate than DE441 for lunar work — it includes the Moon's liquid core.
+DE440 is *more* accurate than DE441 for lunar work; it includes the Moon's liquid core.

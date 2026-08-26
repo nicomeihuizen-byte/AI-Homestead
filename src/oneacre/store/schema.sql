@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS plantings (
     id        INTEGER PRIMARY KEY,
     plot      TEXT NOT NULL,
     crop      TEXT NOT NULL,
-    organ     TEXT NOT NULL,   -- root|leaf|flower|fruit — what you are growing it FOR
+    organ     TEXT NOT NULL,   -- root|leaf|flower|fruit: what you are growing it FOR
     sown_at   TEXT NOT NULL,
     day_type  TEXT,            -- logged covariate, never a constraint
     notes     TEXT

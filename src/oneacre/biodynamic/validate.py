@@ -13,7 +13,7 @@ EXPECT disagreements to cluster on exactly three things:
   2. the node-blanking window width
   3. boundary-crossing times of day
 
-If your mismatches are SCATTERED rather than clustered on those three, you have a real bug —
+If your mismatches are SCATTERED rather than clustered on those three, you have a real bug,
 almost certainly tropical-vs-sidereal.
 
 TODO Phase 6.

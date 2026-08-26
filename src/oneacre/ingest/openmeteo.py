@@ -16,5 +16,5 @@ HIST_FORECAST_URL = "https://historical-forecast-api.open-meteo.com/v1/forecast"
 SATELLITE_URL = "https://satellite-api.open-meteo.com/v1/archive"
 
 ARCHIVE_MODEL = "era5_land"                            # 0.1 deg, 1950 -> present, 5-day latency
-FORECAST_MODEL = "knmi_harmonie_arome_netherlands"     # 2 km, hourly updates — KNMI's own
+FORECAST_MODEL = "knmi_harmonie_arome_netherlands"     # 2 km, hourly updates, KNMI's own
 SATELLITE_MODEL = "eumetsat_sarah3"                    # observed irradiance, 5 km, 1983 ->

@@ -8,7 +8,7 @@ Output per day: constellation, organ, whether folded from Ophiuchus, ascending/d
 blanking (node / eclipse / perigee) and the engine version that produced it.
 
 THIS IS A LOGGED COVARIATE, NEVER A HARD CONSTRAINT. The scheduler may surface "today is a
-leaf day" as context. The evidence does not support the trigon effect — Spiess (1990), working
+leaf day" as context. The evidence does not support the trigon effect: Spiess (1990), working
 inside the biodynamic tradition, failed to verify it across a decade of trials. See
 docs/BUILD_PLAN.md section 5 and docs/PREREGISTRATION.md.
 

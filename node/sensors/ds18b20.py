@@ -1,4 +1,4 @@
-"""ds18b20 — see node/README.md for the contract and the bench test."""
+"""ds18b20: see node/README.md for the contract and the bench test."""
 
 
 def read() -> dict:

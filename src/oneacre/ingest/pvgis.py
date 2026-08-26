@@ -1,4 +1,4 @@
-"""PVGIS (EU JRC) — one-off system sizing. Free, no registration.
+"""PVGIS (EU JRC): one-off system sizing. Free, no registration.
 
 Use `optimalangles=1` to get the optimum tilt/azimuth for the actual site, then compare against
 the 60-75 deg winter-biased tilt in docs/BUILD_PLAN.md §4 and decide deliberately which you want.
