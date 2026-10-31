@@ -1,3 +1,5 @@
+Moved to: https://codeberg.org/meihuizen-ai
+
 # One Acre, Zero Dependency
 
 Off-grid, AI-driven farming on two plots **2256 km apart**: **Prora** on the German Baltic coast
